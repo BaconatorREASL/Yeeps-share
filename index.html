@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yeeps-Share</title>
     <style>
-        /* YEEPS THEME CSS */
         :root {
             --yeeps-orange: #FF8C00;
             --yeeps-yellow: #FFD700;
@@ -21,8 +20,60 @@
             align-items: center;
             margin: 0;
             padding: 20px;
+            padding-top: 80px; /* Space for the top nav */
         }
 
+        /* --- OFFICIAL LINKS BAR --- */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .top-nav a:hover {
+            background: var(--yeeps-orange);
+        }
+
+        /* --- MUSIC CONTROLLER --- */
+        .music-ctrl {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            border: 2px solid var(--yeeps-orange);
+        }
+
+        .mute-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* --- REST OF THE STYLES --- */
         h1 {
             color: white;
             text-shadow: 3px 3px 0px var(--yeeps-orange);
@@ -30,144 +81,43 @@
             margin-bottom: 10px;
         }
 
-        /* FEATURED SECTION */
-        #featured-zone {
-            width: 100%;
-            max-width: 550px;
-            margin-bottom: 20px;
-            display: none; /* Hidden if empty */
-        }
+        #featured-zone { width: 100%; max-width: 550px; margin-bottom: 20px; display: none; }
+        .featured-label { background-color: var(--yeeps-yellow); color: var(--yeeps-dark); padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 10px; border: 2px solid white; }
 
-        .featured-label {
-            background-color: var(--yeeps-yellow);
-            color: var(--yeeps-dark);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 1.2rem;
-            display: inline-block;
-            margin-bottom: 10px;
-            border: 2px solid white;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
-        }
+        .input-container { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 550px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; border: 4px solid var(--yeeps-orange); box-shadow: 0 8px 0 rgba(0,0,0,0.1); }
+        input, select { padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem; }
+        button.post-btn { padding: 12px; background-color: var(--yeeps-orange); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
 
-        /* INPUT AREA */
-        .input-container {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 550px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 30px;
-            border: 4px solid var(--yeeps-orange);
-            box-shadow: 0 8px 0 rgba(0,0,0,0.1);
-        }
-
-        input, select {
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1rem;
-        }
-
-        button.post-btn {
-            padding: 12px;
-            background-color: var(--yeeps-orange);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: transform 0.1s;
-        }
-
-        button.post-btn:active { transform: scale(0.95); }
-
-        /* FEED AREA */
-        #feed {
-            width: 100%;
-            max-width: 550px;
-        }
-
-        .post {
-            background: white;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.05);
-            position: relative;
-            border: 2px solid transparent;
-        }
-
-        /* Special style for Pinned/Featured posts */
-        .post.pinned {
-            border: 4px solid var(--yeeps-yellow);
-            background: #fffbea;
-        }
-
-        .post-content {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            word-wrap: break-word;
-        }
-
-        .media-display {
-            width: 100%;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-
-        /* Link Card Style */
-        .link-card {
-            display: block;
-            background: #f0f2f5;
-            padding: 15px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
-            border: 1px solid #ddd;
-            margin-top: 10px;
-        }
-        .link-card:hover { background: #e4e6eb; }
-
-        /* Admin Controls */
-        .admin-controls {
-            border-top: 1px solid #eee;
-            margin-top: 10px;
-            padding-top: 10px;
-            display: none; /* Hidden by default */
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .admin-btn {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-        .pin-btn { background-color: var(--yeeps-yellow); color: black; }
+        #feed { width: 100%; max-width: 550px; }
+        .post { background: white; padding: 15px; margin-bottom: 20px; border-radius: 15px; position: relative; }
+        .post.pinned { border: 4px solid var(--yeeps-yellow); background: #fffbea; }
+        .media-display { width: 100%; border-radius: 10px; margin-top: 10px; }
+        .link-card { display: block; background: #f0f2f5; padding: 15px; border-radius: 10px; text-decoration: none; color: #007bff; font-weight: bold; margin-top: 10px; }
+        
+        .admin-controls { border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px; display: none; justify-content: flex-end; gap: 10px; }
+        .admin-btn { padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .pin-btn { background-color: var(--yeeps-yellow); }
         .del-btn { background-color: #ff4d4d; color: white; }
-
-        /* Footer Login */
-        footer {
-            margin-top: 50px;
-            color: rgba(255,255,255,0.6);
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
+        footer { margin-top: 50px; color: rgba(255,255,255,0.6); font-size: 0.8rem; cursor: pointer; }
     </style>
 </head>
 <body>
 
+    <nav class="top-nav">
+        <a href="https://www.oculus.com/experiences/quest/7276525922406858/" target="_blank">🎮 Play Yeeps</a>
+        <a href="https://discord.gg/yeeps" target="_blank">💬 Official Discord</a>
+        <a href="https://yeeps.com/" target="_blank">🌐 Official Website</a>
+    </nav>
+
     <h1>🧱 Yeeps-Share</h1>
+
+    <div class="music-ctrl">
+        <span style="font-size: 0.8rem; font-weight: bold;">Yeeps Tunes:</span>
+        <button id="muteBtn" class="mute-btn" onclick="toggleMusic()">🔇</button>
+        <audio id="bgMusic" loop>
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        </audio>
+    </div>
 
     <div id="featured-zone">
         <div class="featured-label">⭐ Featured Posts</div>
@@ -175,18 +125,16 @@
     </div>
 
     <div class="input-container">
-        <h3>Create a Post</h3>
-        <input type="text" id="postText" placeholder="Write something...">
+        <h3>Share your stuff!</h3>
+        <input type="text" id="postText" placeholder="What's happening in the game?">
         
         <select id="mediaType">
             <option value="none">Text Only</option>
-            <option value="link">🔗 Share a Link (URL)</option>
+            <option value="link">🔗 Website Link</option>
             <option value="image">🖼️ Image URL</option>
-            <option value="video">🎥 Video URL (mp4)</option>
+            <option value="video">🎥 Video URL (.mp4)</option>
         </select>
-
         <input type="text" id="mediaUrl" placeholder="Paste link here..." style="display:none;">
-
         <button class="post-btn" onclick="addPost()">Post It!</button>
     </div>
 
@@ -195,29 +143,35 @@
     <footer onclick="attemptLogin()">Admin Login</footer>
 
     <script>
-        // --- CONFIGURATION ---
-        const ADMIN_PASSWORD = "yeeps"; // <--- CHANGE THIS PASSWORD!
-        // ---------------------
-
+        // --- ADMIN CONFIG ---
+        const ADMIN_PASSWORD = "yeeps"; 
         let isAdmin = false;
 
-        // 1. Handle Input Toggle
+        // --- MUSIC LOGIC ---
+        const music = document.getElementById('bgMusic');
+        const muteBtn = document.getElementById('muteBtn');
+        let isMuted = true;
+
+        function toggleMusic() {
+            if (isMuted) {
+                music.play();
+                muteBtn.innerText = "🔊";
+                isMuted = false;
+            } else {
+                music.pause();
+                muteBtn.innerText = "🔇";
+                isMuted = true;
+            }
+        }
+
+        // --- POSTING LOGIC ---
         const typeSelector = document.getElementById('mediaType');
         const urlInput = document.getElementById('mediaUrl');
 
         typeSelector.addEventListener('change', function() {
-            if (this.value === 'none') {
-                urlInput.style.display = 'none';
-            } else {
-                urlInput.style.display = 'block';
-                // Update placeholder based on type
-                if(this.value === 'link') urlInput.placeholder = "https://example.com";
-                if(this.value === 'image') urlInput.placeholder = "https://... (ends in .jpg/.png)";
-                if(this.value === 'video') urlInput.placeholder = "https://... (ends in .mp4)";
-            }
+            urlInput.style.display = (this.value === 'none') ? 'none' : 'block';
         });
 
-        // 2. Load Data
         document.addEventListener('DOMContentLoaded', loadPosts);
 
         function addPost() {
@@ -225,28 +179,22 @@
             const typeInput = document.getElementById('mediaType');
             const urlInputBox = document.getElementById('mediaUrl');
 
-            if (textInput.value === '' && urlInputBox.value === '') {
-                alert("Write something!");
-                return;
-            }
+            if (!textInput.value && !urlInputBox.value) return;
 
             const post = {
                 id: Date.now(),
                 content: textInput.value,
                 mediaType: typeInput.value,
                 mediaUrl: urlInputBox.value,
-                isPinned: false // Default is not pinned
+                isPinned: false
             };
 
-            saveToStorage(post);
-            // Reload to show in correct order
-            loadPosts(); 
-
-            // Clear inputs
-            textInput.value = '';
-            urlInputBox.value = '';
-            typeInput.value = 'none';
-            urlInputBox.style.display = 'none';
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            posts.push(post);
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
+            
+            textInput.value = ''; urlInputBox.value = '';
+            loadPosts();
         }
 
         function renderPost(post) {
@@ -255,102 +203,60 @@
             postDiv.id = post.id;
 
             let mediaHTML = '';
-            
-            // --- NEW: URL LOGIC ---
-            if (post.mediaType === 'link' && post.mediaUrl) {
-                mediaHTML = `<a href="${post.mediaUrl}" target="_blank" class="link-card">🔗 Visit Link: ${post.mediaUrl}</a>`;
-            } else if (post.mediaType === 'image' && post.mediaUrl) {
-                mediaHTML = `<img src="${post.mediaUrl}" class="media-display" loading="lazy">`;
-            } else if (post.mediaType === 'video' && post.mediaUrl) {
+            if (post.mediaType === 'link') {
+                mediaHTML = `<a href="${post.mediaUrl}" target="_blank" class="link-card">🔗 Visit: ${post.mediaUrl}</a>`;
+            } else if (post.mediaType === 'image') {
+                mediaHTML = `<img src="${post.mediaUrl}" class="media-display">`;
+            } else if (post.mediaType === 'video') {
                 mediaHTML = `<video controls class="media-display"><source src="${post.mediaUrl}" type="video/mp4"></video>`;
             }
-
-            // Admin buttons (hidden unless logged in)
-            const adminPanel = `
-                <div class="admin-controls" style="display: ${isAdmin ? 'flex' : 'none'}">
-                    <button class="admin-btn pin-btn" onclick="togglePin(${post.id})">
-                        ${post.isPinned ? 'Un-Star' : '⭐ Star This'}
-                    </button>
-                    <button class="admin-btn del-btn" onclick="deletePost(${post.id})">Delete</button>
-                </div>
-            `;
 
             postDiv.innerHTML = `
                 <div class="post-content">${post.content}</div>
                 ${mediaHTML}
-                ${adminPanel}
+                <div class="admin-controls" style="display: ${isAdmin ? 'flex' : 'none'}">
+                    <button class="admin-btn pin-btn" onclick="togglePin(${post.id})">${post.isPinned ? 'Un-Star' : '⭐ Star'}</button>
+                    <button class="admin-btn del-btn" onclick="deletePost(${post.id})">Delete</button>
+                </div>
             `;
-
             return postDiv;
         }
 
         function loadPosts() {
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            
             const mainFeed = document.getElementById('feed');
             const featuredFeed = document.getElementById('featured-feed');
             const featuredZone = document.getElementById('featured-zone');
             
-            mainFeed.innerHTML = '';
-            featuredFeed.innerHTML = '';
-
+            mainFeed.innerHTML = ''; featuredFeed.innerHTML = '';
             let hasFeatured = false;
 
-            // Sort logic: Pinned items separate from normal items
             posts.forEach(post => {
-                const postElement = renderPost(post);
-                
-                if (post.isPinned) {
-                    featuredFeed.prepend(postElement);
-                    hasFeatured = true;
-                } else {
-                    mainFeed.prepend(postElement);
-                }
+                const el = renderPost(post);
+                if (post.isPinned) { featuredFeed.prepend(el); hasFeatured = true; }
+                else { mainFeed.prepend(el); }
             });
-
-            // Show/Hide Featured Header based on if there are any
             featuredZone.style.display = hasFeatured ? 'block' : 'none';
-        }
-
-        // --- STORAGE & ADMIN FUNCTIONS ---
-
-        function saveToStorage(post) {
-            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            posts.push(post);
-            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
         }
 
         function deletePost(id) {
             if (!isAdmin) return;
-            if(!confirm("Delete this post?")) return;
-            
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            posts = posts.filter(post => post.id !== id);
+            posts = posts.filter(p => p.id !== id);
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
             loadPosts();
         }
 
         function togglePin(id) {
             if (!isAdmin) return;
-
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            // Find post and flip the 'isPinned' setting
-            const postIndex = posts.findIndex(p => p.id === id);
-            if (postIndex > -1) {
-                posts[postIndex].isPinned = !posts[postIndex].isPinned;
-                localStorage.setItem('yeepsPosts', JSON.stringify(posts));
-                loadPosts();
-            }
+            const i = posts.findIndex(p => p.id === id);
+            if (i > -1) { posts[i].isPinned = !posts[i].isPinned; localStorage.setItem('yeepsPosts', JSON.stringify(posts)); loadPosts(); }
         }
 
         function attemptLogin() {
-            const pass = prompt("Enter Admin Password:");
-            if (pass === ADMIN_PASSWORD) {
-                isAdmin = true;
-                alert("Admin Mode Active! You can now Star and Delete posts.");
-                loadPosts(); // Refresh to show buttons
-            } else {
-                alert("Wrong password!");
+            if (prompt("Admin Password:") === ADMIN_PASSWORD) {
+                isAdmin = true; alert("Admin Active!"); loadPosts();
             }
         }
     </script>
