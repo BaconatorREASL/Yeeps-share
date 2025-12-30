@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Share Board</title>
+    <style>
+        /* CSS: This makes the site look good */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        /* The input area */
+        .input-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* The area where posts appear */
+        #feed {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .post {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background-color: #ff4d4d;
+            font-size: 12px;
+            padding: 5px 10px;
+            margin-left: 10px;
+        }
+
+        .delete-btn:hover {
+            background-color: #cc0000;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📢 Community Share Board</h1>
+
+    <div class="input-container">
+        <input type="text" id="postInput" placeholder="Share something (text or link)...">
+        <button onclick="addPost()">Post</button>
+    </div>
+
+    <div id="feed">
+        </div>
+
+    <script>
+        // JAVASCRIPT: This handles the logic
+
+        // 1. Load posts from local storage when the page starts
+        document.addEventListener('DOMContentLoaded', loadPosts);
+
+        function addPost() {
+            const input = document.getElementById('postInput');
+            const text = input.value;
+
+            if (text === '') {
+                alert("Please write something first!");
+                return;
+            }
+
+            // Create a post object
+            const post = {
+                id: Date.now(),
+                content: text
+            };
+
+            // Save to Local Storage
+            saveToStorage(post);
+
+            // Add to the visual list
+            renderPost(post);
+
+            // Clear the input box
+            input.value = '';
+        }
+
+        function renderPost(post) {
+            const feed = document.getElementById('feed');
+            
+            // Create the HTML elements for the post
+            const postDiv = document.createElement('div');
+            postDiv.className = 'post';
+            postDiv.id = post.id;
+            
+            // Allow basic links to be clickable, otherwise just text
+            let contentDisplay = post.content;
+            if (post.content.startsWith('http')) {
+                contentDisplay = `<a href="${post.content}" target="_blank">${post.content}</a>`;
+            }
+
+            postDiv.innerHTML = `
+                <span>${contentDisplay}</span>
+                <button class="delete-btn" onclick="deletePost(${post.id})">Delete</button>
+            `;
+
+            // Add to the top of the feed
+            feed.prepend(postDiv);
+        }
+
+        function saveToStorage(post) {
+            // Get existing posts or empty array
+            let posts = JSON.parse(localStorage.getItem('myPosts')) || [];
+            posts.push(post);
+            localStorage.setItem('myPosts', JSON.stringify(posts));
+        }
+
+        function loadPosts() {
+            let posts = JSON.parse(localStorage.getItem('myPosts')) || [];
+            posts.forEach(post => renderPost(post));
+        }
+
+        function deletePost(id) {
+            // Remove from screen
+            const element = document.getElementById(id);
+            element.remove();
+
+            // Remove from memory
+            let posts = JSON.parse(localStorage.getItem('myPosts')) || [];
+            posts = posts.filter(post => post.id !== id);
+            localStorage.setItem('myPosts', JSON.stringify(posts));
+        }
+    </script>
+
+</body>
+</html>
