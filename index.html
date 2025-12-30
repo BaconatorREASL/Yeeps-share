@@ -3,12 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Share Board</title>
+    <title>Yeeps-Share</title>
     <style>
-        /* CSS: This makes the site look good */
+        /* YEEPS THEME CSS */
+        :root {
+            --yeeps-orange: #FF8C00;
+            --yeeps-yellow: #FFD700;
+            --yeeps-white: #ffffff;
+            --bg-color: #87CEEB; /* Sky blue like the game world */
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Playful font */
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -17,167 +24,238 @@
         }
 
         h1 {
-            color: #333;
+            color: white;
+            text-shadow: 2px 2px 0px var(--yeeps-orange);
+            font-size: 3rem;
+            margin-bottom: 10px;
         }
 
-        /* The input area */
-        .input-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        /* FEATURED / ANNOUNCEMENT SECTION (Owner Only) */
+        .admin-zone {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            border: 4px solid white;
+            border-radius: 15px;
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 0 rgba(0,0,0,0.1); /* Blocky shadow */
+            text-align: center;
+        }
+
+        .admin-badge {
+            background-color: var(--yeeps-orange);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        /* INPUT AREA */
+        .input-container {
+            background: var(--yeeps-white);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 550px;
             display: flex;
+            flex-direction: column;
             gap: 10px;
             margin-bottom: 20px;
+            border: 3px solid var(--yeeps-orange);
         }
 
-        input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        input, select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
         }
 
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
+        button.post-btn {
+            padding: 12px;
+            background-color: var(--yeeps-orange);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.1s;
         }
 
-        button:hover {
-            background-color: #0056b3;
+        button.post-btn:active {
+            transform: scale(0.95);
         }
 
-        /* The area where posts appear */
+        /* FEED AREA */
         #feed {
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
         }
 
         .post {
             background: white;
             padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            animation: fadeIn 0.5s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.05);
+            animation: bounceIn 0.5s;
+            position: relative;
+        }
+
+        .post-content {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+        }
+
+        .media-display {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
         }
 
         .delete-btn {
             background-color: #ff4d4d;
-            font-size: 12px;
+            color: white;
+            border: none;
             padding: 5px 10px;
-            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            float: right;
         }
 
-        .delete-btn:hover {
-            background-color: #cc0000;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
-    <h1>📢 Community Share Board</h1>
+    <h1>🧱 Yeeps-Share</h1>
+
+    <div class="admin-zone">
+        <span class="admin-badge">⭐ Featured Post</span>
+        <h2>Welcome to the Yeeps Community!</h2>
+        <p>This is the official place to share your best hiding spots and clips. Remember to keep it friendly!</p>
+        </div>
 
     <div class="input-container">
-        <input type="text" id="postInput" placeholder="Share something (text or link)...">
-        <button onclick="addPost()">Post</button>
+        <h3>Create a Post</h3>
+        <input type="text" id="postText" placeholder="What's on your mind?">
+        
+        <select id="mediaType">
+            <option value="none">No Media (Text Only)</option>
+            <option value="image">Image URL</option>
+            <option value="video">Video URL (mp4)</option>
+        </select>
+
+        <input type="text" id="mediaUrl" placeholder="Paste link here (http://...)" style="display:none;">
+
+        <button class="post-btn" onclick="addPost()">Post It!</button>
     </div>
 
     <div id="feed">
         </div>
 
     <script>
-        // JAVASCRIPT: This handles the logic
+        // Toggle the Media URL input based on dropdown selection
+        const typeSelector = document.getElementById('mediaType');
+        const urlInput = document.getElementById('mediaUrl');
 
-        // 1. Load posts from local storage when the page starts
+        typeSelector.addEventListener('change', function() {
+            if (this.value === 'none') {
+                urlInput.style.display = 'none';
+            } else {
+                urlInput.style.display = 'block';
+            }
+        });
+
+        // LOAD POSTS
         document.addEventListener('DOMContentLoaded', loadPosts);
 
         function addPost() {
-            const input = document.getElementById('postInput');
-            const text = input.value;
+            const textInput = document.getElementById('postText');
+            const typeInput = document.getElementById('mediaType');
+            const urlInput = document.getElementById('mediaUrl');
 
-            if (text === '') {
-                alert("Please write something first!");
+            const text = textInput.value;
+            const type = typeInput.value;
+            const url = urlInput.value;
+
+            if (text === '' && url === '') {
+                alert("You can't post nothing!");
                 return;
             }
 
-            // Create a post object
             const post = {
                 id: Date.now(),
-                content: text
+                content: text,
+                mediaType: type,
+                mediaUrl: url
             };
 
-            // Save to Local Storage
             saveToStorage(post);
-
-            // Add to the visual list
             renderPost(post);
 
-            // Clear the input box
-            input.value = '';
+            // Reset inputs
+            textInput.value = '';
+            urlInput.value = '';
+            typeInput.value = 'none';
+            urlInput.style.display = 'none';
         }
 
         function renderPost(post) {
             const feed = document.getElementById('feed');
-            
-            // Create the HTML elements for the post
             const postDiv = document.createElement('div');
             postDiv.className = 'post';
             postDiv.id = post.id;
+
+            let mediaHTML = '';
             
-            // Allow basic links to be clickable, otherwise just text
-            let contentDisplay = post.content;
-            if (post.content.startsWith('http')) {
-                contentDisplay = `<a href="${post.content}" target="_blank">${post.content}</a>`;
+            // Logic to display Image or Video
+            if (post.mediaType === 'image' && post.mediaUrl) {
+                mediaHTML = `<img src="${post.mediaUrl}" class="media-display" alt="User Image">`;
+            } else if (post.mediaType === 'video' && post.mediaUrl) {
+                mediaHTML = `
+                <video controls class="media-display">
+                    <source src="${post.mediaUrl}" type="video/mp4">
+                    Your browser does not support video.
+                </video>`;
             }
 
             postDiv.innerHTML = `
-                <span>${contentDisplay}</span>
-                <button class="delete-btn" onclick="deletePost(${post.id})">Delete</button>
+                <button class="delete-btn" onclick="deletePost(${post.id})">X</button>
+                <div class="post-content">${post.content}</div>
+                ${mediaHTML}
             `;
 
-            // Add to the top of the feed
             feed.prepend(postDiv);
         }
 
         function saveToStorage(post) {
-            // Get existing posts or empty array
-            let posts = JSON.parse(localStorage.getItem('myPosts')) || [];
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             posts.push(post);
-            localStorage.setItem('myPosts', JSON.stringify(posts));
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
         }
 
         function loadPosts() {
-            let posts = JSON.parse(localStorage.getItem('myPosts')) || [];
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             posts.forEach(post => renderPost(post));
         }
 
         function deletePost(id) {
-            // Remove from screen
-            const element = document.getElementById(id);
-            element.remove();
-
-            // Remove from memory
-            let posts = JSON.parse(localStorage.getItem('myPosts')) || [];
+            document.getElementById(id).remove();
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             posts = posts.filter(post => post.id !== id);
-            localStorage.setItem('myPosts', JSON.stringify(posts));
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
         }
     </script>
-
 </body>
 </html>
