@@ -9,13 +9,13 @@
         :root {
             --yeeps-orange: #FF8C00;
             --yeeps-yellow: #FFD700;
-            --yeeps-white: #ffffff;
-            --bg-color: #87CEEB; /* Sky blue like the game world */
+            --yeeps-blue: #87CEEB;
+            --yeeps-dark: #333;
         }
 
         body {
-            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Playful font */
-            background-color: var(--bg-color);
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            background-color: var(--yeeps-blue);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -25,47 +25,45 @@
 
         h1 {
             color: white;
-            text-shadow: 2px 2px 0px var(--yeeps-orange);
+            text-shadow: 3px 3px 0px var(--yeeps-orange);
             font-size: 3rem;
             margin-bottom: 10px;
         }
 
-        /* FEATURED / ANNOUNCEMENT SECTION (Owner Only) */
-        .admin-zone {
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-            border: 4px solid white;
-            border-radius: 15px;
+        /* FEATURED SECTION */
+        #featured-zone {
             width: 100%;
             max-width: 550px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 0 rgba(0,0,0,0.1); /* Blocky shadow */
-            text-align: center;
+            margin-bottom: 20px;
+            display: none; /* Hidden if empty */
         }
 
-        .admin-badge {
-            background-color: var(--yeeps-orange);
-            color: white;
-            padding: 5px 10px;
+        .featured-label {
+            background-color: var(--yeeps-yellow);
+            color: var(--yeeps-dark);
+            padding: 5px 15px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 0.9rem;
-            text-transform: uppercase;
+            font-size: 1.2rem;
+            display: inline-block;
+            margin-bottom: 10px;
+            border: 2px solid white;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
         }
 
         /* INPUT AREA */
         .input-container {
-            background: var(--yeeps-white);
+            background: white;
             padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.1);
             width: 100%;
             max-width: 550px;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-bottom: 20px;
-            border: 3px solid var(--yeeps-orange);
+            margin-bottom: 30px;
+            border: 4px solid var(--yeeps-orange);
+            box-shadow: 0 8px 0 rgba(0,0,0,0.1);
         }
 
         input, select {
@@ -87,9 +85,7 @@
             transition: transform 0.1s;
         }
 
-        button.post-btn:active {
-            transform: scale(0.95);
-        }
+        button.post-btn:active { transform: scale(0.95); }
 
         /* FEED AREA */
         #feed {
@@ -103,8 +99,14 @@
             margin-bottom: 20px;
             border-radius: 15px;
             box-shadow: 0 5px 0 rgba(0,0,0,0.05);
-            animation: bounceIn 0.5s;
             position: relative;
+            border: 2px solid transparent;
+        }
+
+        /* Special style for Pinned/Featured posts */
+        .post.pinned {
+            border: 4px solid var(--yeeps-yellow);
+            background: #fffbea;
         }
 
         .post-content {
@@ -119,20 +121,47 @@
             margin-top: 10px;
         }
 
-        .delete-btn {
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            float: right;
+        /* Link Card Style */
+        .link-card {
+            display: block;
+            background: #f0f2f5;
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+        }
+        .link-card:hover { background: #e4e6eb; }
+
+        /* Admin Controls */
+        .admin-controls {
+            border-top: 1px solid #eee;
+            margin-top: 10px;
+            padding-top: 10px;
+            display: none; /* Hidden by default */
+            justify-content: flex-end;
+            gap: 10px;
         }
 
-        @keyframes bounceIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            60% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(1); }
+        .admin-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .pin-btn { background-color: var(--yeeps-yellow); color: black; }
+        .del-btn { background-color: #ff4d4d; color: white; }
+
+        /* Footer Login */
+        footer {
+            margin-top: 50px;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -140,32 +169,39 @@
 
     <h1>🧱 Yeeps-Share</h1>
 
-    <div class="admin-zone">
-        <span class="admin-badge">⭐ Featured Post</span>
-        <h2>Welcome to the Yeeps Community!</h2>
-        <p>This is the official place to share your best hiding spots and clips. Remember to keep it friendly!</p>
-        </div>
+    <div id="featured-zone">
+        <div class="featured-label">⭐ Featured Posts</div>
+        <div id="featured-feed"></div>
+    </div>
 
     <div class="input-container">
         <h3>Create a Post</h3>
-        <input type="text" id="postText" placeholder="What's on your mind?">
+        <input type="text" id="postText" placeholder="Write something...">
         
         <select id="mediaType">
-            <option value="none">No Media (Text Only)</option>
-            <option value="image">Image URL</option>
-            <option value="video">Video URL (mp4)</option>
+            <option value="none">Text Only</option>
+            <option value="link">🔗 Share a Link (URL)</option>
+            <option value="image">🖼️ Image URL</option>
+            <option value="video">🎥 Video URL (mp4)</option>
         </select>
 
-        <input type="text" id="mediaUrl" placeholder="Paste link here (http://...)" style="display:none;">
+        <input type="text" id="mediaUrl" placeholder="Paste link here..." style="display:none;">
 
         <button class="post-btn" onclick="addPost()">Post It!</button>
     </div>
 
-    <div id="feed">
-        </div>
+    <div id="feed"></div>
+
+    <footer onclick="attemptLogin()">Admin Login</footer>
 
     <script>
-        // Toggle the Media URL input based on dropdown selection
+        // --- CONFIGURATION ---
+        const ADMIN_PASSWORD = "yeeps"; // <--- CHANGE THIS PASSWORD!
+        // ---------------------
+
+        let isAdmin = false;
+
+        // 1. Handle Input Toggle
         const typeSelector = document.getElementById('mediaType');
         const urlInput = document.getElementById('mediaUrl');
 
@@ -174,70 +210,109 @@
                 urlInput.style.display = 'none';
             } else {
                 urlInput.style.display = 'block';
+                // Update placeholder based on type
+                if(this.value === 'link') urlInput.placeholder = "https://example.com";
+                if(this.value === 'image') urlInput.placeholder = "https://... (ends in .jpg/.png)";
+                if(this.value === 'video') urlInput.placeholder = "https://... (ends in .mp4)";
             }
         });
 
-        // LOAD POSTS
+        // 2. Load Data
         document.addEventListener('DOMContentLoaded', loadPosts);
 
         function addPost() {
             const textInput = document.getElementById('postText');
             const typeInput = document.getElementById('mediaType');
-            const urlInput = document.getElementById('mediaUrl');
+            const urlInputBox = document.getElementById('mediaUrl');
 
-            const text = textInput.value;
-            const type = typeInput.value;
-            const url = urlInput.value;
-
-            if (text === '' && url === '') {
-                alert("You can't post nothing!");
+            if (textInput.value === '' && urlInputBox.value === '') {
+                alert("Write something!");
                 return;
             }
 
             const post = {
                 id: Date.now(),
-                content: text,
-                mediaType: type,
-                mediaUrl: url
+                content: textInput.value,
+                mediaType: typeInput.value,
+                mediaUrl: urlInputBox.value,
+                isPinned: false // Default is not pinned
             };
 
             saveToStorage(post);
-            renderPost(post);
+            // Reload to show in correct order
+            loadPosts(); 
 
-            // Reset inputs
+            // Clear inputs
             textInput.value = '';
-            urlInput.value = '';
+            urlInputBox.value = '';
             typeInput.value = 'none';
-            urlInput.style.display = 'none';
+            urlInputBox.style.display = 'none';
         }
 
         function renderPost(post) {
-            const feed = document.getElementById('feed');
             const postDiv = document.createElement('div');
-            postDiv.className = 'post';
+            postDiv.className = `post ${post.isPinned ? 'pinned' : ''}`;
             postDiv.id = post.id;
 
             let mediaHTML = '';
             
-            // Logic to display Image or Video
-            if (post.mediaType === 'image' && post.mediaUrl) {
-                mediaHTML = `<img src="${post.mediaUrl}" class="media-display" alt="User Image">`;
+            // --- NEW: URL LOGIC ---
+            if (post.mediaType === 'link' && post.mediaUrl) {
+                mediaHTML = `<a href="${post.mediaUrl}" target="_blank" class="link-card">🔗 Visit Link: ${post.mediaUrl}</a>`;
+            } else if (post.mediaType === 'image' && post.mediaUrl) {
+                mediaHTML = `<img src="${post.mediaUrl}" class="media-display" loading="lazy">`;
             } else if (post.mediaType === 'video' && post.mediaUrl) {
-                mediaHTML = `
-                <video controls class="media-display">
-                    <source src="${post.mediaUrl}" type="video/mp4">
-                    Your browser does not support video.
-                </video>`;
+                mediaHTML = `<video controls class="media-display"><source src="${post.mediaUrl}" type="video/mp4"></video>`;
             }
 
-            postDiv.innerHTML = `
-                <button class="delete-btn" onclick="deletePost(${post.id})">X</button>
-                <div class="post-content">${post.content}</div>
-                ${mediaHTML}
+            // Admin buttons (hidden unless logged in)
+            const adminPanel = `
+                <div class="admin-controls" style="display: ${isAdmin ? 'flex' : 'none'}">
+                    <button class="admin-btn pin-btn" onclick="togglePin(${post.id})">
+                        ${post.isPinned ? 'Un-Star' : '⭐ Star This'}
+                    </button>
+                    <button class="admin-btn del-btn" onclick="deletePost(${post.id})">Delete</button>
+                </div>
             `;
 
-            feed.prepend(postDiv);
+            postDiv.innerHTML = `
+                <div class="post-content">${post.content}</div>
+                ${mediaHTML}
+                ${adminPanel}
+            `;
+
+            return postDiv;
         }
+
+        function loadPosts() {
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            
+            const mainFeed = document.getElementById('feed');
+            const featuredFeed = document.getElementById('featured-feed');
+            const featuredZone = document.getElementById('featured-zone');
+            
+            mainFeed.innerHTML = '';
+            featuredFeed.innerHTML = '';
+
+            let hasFeatured = false;
+
+            // Sort logic: Pinned items separate from normal items
+            posts.forEach(post => {
+                const postElement = renderPost(post);
+                
+                if (post.isPinned) {
+                    featuredFeed.prepend(postElement);
+                    hasFeatured = true;
+                } else {
+                    mainFeed.prepend(postElement);
+                }
+            });
+
+            // Show/Hide Featured Header based on if there are any
+            featuredZone.style.display = hasFeatured ? 'block' : 'none';
+        }
+
+        // --- STORAGE & ADMIN FUNCTIONS ---
 
         function saveToStorage(post) {
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
@@ -245,16 +320,38 @@
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
         }
 
-        function loadPosts() {
-            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            posts.forEach(post => renderPost(post));
-        }
-
         function deletePost(id) {
-            document.getElementById(id).remove();
+            if (!isAdmin) return;
+            if(!confirm("Delete this post?")) return;
+            
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             posts = posts.filter(post => post.id !== id);
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
+            loadPosts();
+        }
+
+        function togglePin(id) {
+            if (!isAdmin) return;
+
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            // Find post and flip the 'isPinned' setting
+            const postIndex = posts.findIndex(p => p.id === id);
+            if (postIndex > -1) {
+                posts[postIndex].isPinned = !posts[postIndex].isPinned;
+                localStorage.setItem('yeepsPosts', JSON.stringify(posts));
+                loadPosts();
+            }
+        }
+
+        function attemptLogin() {
+            const pass = prompt("Enter Admin Password:");
+            if (pass === ADMIN_PASSWORD) {
+                isAdmin = true;
+                alert("Admin Mode Active! You can now Star and Delete posts.");
+                loadPosts(); // Refresh to show buttons
+            } else {
+                alert("Wrong password!");
+            }
         }
     </script>
 </body>
