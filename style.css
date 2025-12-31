@@ -1,6 +1,7 @@
+:/* --- Global Variables & Background --- */
 :root {
     --yeeps-orange: #FF8C00;
-    /* Role Colors */
+    /* Role Hex Colors */
     --role-owner: #36454F;
     --role-creator: #CED11D;
     --role-rat: #0AD100;
@@ -19,20 +20,21 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 90px;
+    padding-top: 100px;
     margin: 0;
 }
 
+/* --- Navigation & Logo --- */
 .top-nav {
     position: fixed;
     top: 0;
     width: 100%;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.9);
     padding: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 30px;
+    gap: 25px;
     z-index: 1000;
 }
 
@@ -41,8 +43,33 @@ body {
     cursor: pointer;
 }
 
-.top-nav a { color: white; text-decoration: none; font-weight: bold; }
+.top-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem;
+}
 
+/* --- Profile Picture (PFP) Fixes --- */
+.pfp-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover; /* Prevents stretching */
+    border: 2px solid var(--yeeps-orange);
+    cursor: pointer;
+}
+
+.pfp-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--yeeps-orange);
+    margin-bottom: 15px;
+}
+
+/* --- Posts & Layout --- */
 .admin-panel, .input-box {
     background: rgba(255, 255, 255, 0.95);
     padding: 20px;
@@ -50,6 +77,7 @@ body {
     width: 480px;
     margin-bottom: 20px;
     border: 4px solid var(--yeeps-orange);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
 
 .post {
@@ -59,10 +87,22 @@ body {
     border-radius: 15px;
     width: 480px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    position: relative;
 }
 
-.post-header { display: flex; align-items: center; gap: 12px; }
+.post.pinned {
+    border: 3px solid #FFD700;
+    background: #FFFBEB;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
 
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* --- Roles & Badges --- */
 .role-container {
     display: flex;
     align-items: center;
@@ -70,7 +110,11 @@ body {
     margin-top: 4px;
 }
 
-.role-icon { width: 18px; height: 18px; object-fit: contain; }
+.role-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
 
 .badge {
     font-size: 0.65rem;
@@ -78,19 +122,33 @@ body {
     border-radius: 5px;
     font-weight: bold;
     color: white;
+    text-transform: uppercase;
 }
 
-/* Dark text for light colors */
-.role-star, .role-dev, .role-creator, .role-webmod { color: #000 !important; }
+/* Black text for roles with light colors */
+.role-star, .role-dev, .role-creator, .role-webmod { 
+    color: #000 !important; 
+}
 
-.checkmark { color: #1DA1F2; margin-left: 5px; font-weight: bold; }
-
-input, select, textarea {
-    width: 90%;
+/* --- Form Elements --- */
+input, textarea, select {
+    width: 95%;
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 8px;
     border: 2px solid #ddd;
+    font-family: inherit;
 }
 
-button { padding: 10px 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+button {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+button:active {
+    transform: scale(0.98);
+}
