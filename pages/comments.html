@@ -4,73 +4,66 @@
     <meta charset="UTF-8">
     <title>Comments | Yeeps-Share</title>
     <link rel="stylesheet" href="../style.css">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <nav class="top-nav">
         <a href="../index.html">🏠 Back to Feed</a>
     </nav>
 
-    <div id="originalPost" style="margin-top:20px;"></div>
+    <div id="originalPost"></div>
 
     <div class="input-box">
-        <h3>Comments</h3>
-        <div id="commentList" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;"></div>
-        <hr>
-        <textarea id="commentText" placeholder="Write a reply..." style="width:95%; height:60px;"></textarea>
-        <button onclick="postComment()" style="width:100%; background:var(--yeeps-orange); color:white; margin-top:10px;">Post Reply</button>
+        <textarea id="commentText" placeholder="Write a comment..."></textarea>
+        <button onclick="postComment()" style="width:100%; background:var(--yeeps-orange); color:white;">SEND COMMENT</button>
     </div>
 
+    <div id="commentSection"></div>
+
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const postId = params.get('postId');
+        const firebaseConfig = { /* ... your config ... */ };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
         const currentUser = localStorage.getItem('current_yeep_user');
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('postId');
 
-        function loadComments() {
-            // Load Original Post
-            const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const post = posts.find(p => p.id == postId);
-            if(post) {
-                document.getElementById('originalPost').innerHTML = `
-                    <div class="post">
-                        <strong>${post.username}</strong>
-                        <p>${post.content}</p>
-                    </div>`;
-            }
+        // 1. Load the actual post at the top
+        db.collection("posts").doc(postId).onSnapshot((doc) => {
+            const p = doc.data();
+            document.getElementById('originalPost').innerHTML = `
+                <div class="post">
+                    <strong>${p.username}</strong>
+                    <p>${p.content}</p>
+                </div>
+            `;
+        });
 
-            // Load Comments
-            const allComments = JSON.parse(localStorage.getItem('yeeps_comments')) || {};
-            const comments = allComments[postId] || [];
-            const list = document.getElementById('commentList');
-            list.innerHTML = comments.length === 0 ? "<p>No comments yet. Be the first!</p>" : "";
-
-            comments.forEach(c => {
-                list.innerHTML += `
-                    <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
-                        <strong style="color:var(--yeeps-orange);">${c.user}:</strong>
-                        <span>${c.text}</span>
-                    </div>`;
+        // 2. Load comments in real-time
+        db.collection("posts").doc(postId).collection("comments").orderBy("timestamp", "asc").onSnapshot((snap) => {
+            const section = document.getElementById('commentSection');
+            section.innerHTML = "";
+            snap.forEach(doc => {
+                const c = doc.data();
+                section.innerHTML += `
+                    <div class="post" style="width:400px; margin-left:40px; font-size:0.9em;">
+                        <strong>${c.username}:</strong> ${c.text}
+                    </div>
+                `;
             });
-        }
+        });
 
-        function postComment() {
+        async function postComment() {
             const text = document.getElementById('commentText').value.trim();
             if(!text) return;
-
-            let allComments = JSON.parse(localStorage.getItem('yeeps_comments')) || {};
-            if(!allComments[postId]) allComments[postId] = [];
-
-            allComments[postId].push({
-                user: currentUser,
+            await db.collection("posts").doc(postId).collection("comments").add({
+                username: currentUser,
                 text: text,
-                time: Date.now()
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
-
-            localStorage.setItem('yeeps_comments', JSON.stringify(allComments));
             document.getElementById('commentText').value = "";
-            loadComments();
         }
-
-        loadComments();
     </script>
 </body>
 </html>
