@@ -1,0 +1,115 @@
+/* --- Global Theme --- */
+:root { 
+    --yeeps-orange: #FF8C00; 
+    --yeeps-yellow: #FFD700; 
+    --yeeps-blue: #87CEEB; 
+    
+    /* Role Colors */
+    --role-owner: #808080;      /* Gray */
+    --role-creator: #FF8C00;    /* Orange */
+    --role-rat: #3BA55D;        /* Green */
+    --role-star: #FFD700;       /* Yellow */
+    --role-starprog: #800080;   /* Purple */
+    --role-gamemod: #0000FF;    /* Blue */
+    --role-discordmod: #00008B; /* Dark Blue */
+    --role-webmod: #00FFFF;     /* Cyan */
+    --role-dev: #FFFACD;        /* Light Yellow */
+}
+
+body { 
+    font-family: 'Comic Sans MS', sans-serif; 
+    background: var(--yeeps-blue); 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    padding-top: 80px; 
+    margin: 0; 
+}
+
+/* --- Navigation --- */
+.top-nav { 
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    background: rgba(0,0,0,0.8); 
+    padding: 10px; 
+    display: flex; 
+    justify-content: center; 
+    gap: 20px; 
+    z-index: 1000; 
+}
+.top-nav a { color: white; text-decoration: none; font-weight: bold; }
+
+/* --- Post UI --- */
+.post { 
+    background: white; 
+    padding: 15px; 
+    margin-bottom: 20px; 
+    border-radius: 15px; 
+    width: 450px; 
+    box-shadow: 0 4px 0 rgba(0,0,0,0.1); 
+    border: 1px solid #eee;
+}
+.post.pinned { 
+    border: 4px solid var(--yeeps-yellow); 
+    background: #fffbea; 
+}
+
+.post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.pfp-img { 
+    width: 45px; 
+    height: 45px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    border: 2px solid var(--yeeps-orange); 
+    cursor: pointer; 
+}
+
+/* --- Badges & Roles --- */
+.badge { 
+    font-size: 0.65rem; 
+    padding: 2px 8px; 
+    border-radius: 10px; 
+    color: white; 
+    font-weight: bold; 
+    width: fit-content; 
+    margin-top: 2px;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+}
+
+/* Light background roles need dark text */
+.role-dev, .role-star, .role-webmod { color: #333; }
+
+.checkmark { color: #1DA1F2; margin-left: 5px; font-weight: bold; }
+
+/* --- Forms & Buttons --- */
+.input-box, .admin-panel { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 15px; 
+    width: 450px; 
+    margin-bottom: 20px; 
+    border: 4px solid var(--yeeps-orange); 
+}
+input, textarea, select { 
+    width: 90%; 
+    padding: 10px; 
+    margin-bottom: 10px; 
+    border-radius: 8px; 
+    border: 2px solid #ddd; 
+}
+button { 
+    cursor: pointer; 
+    border-radius: 8px; 
+    font-weight: bold; 
+}
+
+.music-ctrl { 
+    position: fixed; 
+    bottom: 20px; 
+    right: 20px; 
+    background: white; 
+    padding: 10px; 
+    border-radius: 50px; 
+    border: 2px solid var(--yeeps-orange); 
+}
