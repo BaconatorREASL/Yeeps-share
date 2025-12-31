@@ -5,15 +5,15 @@
     --yeeps-blue: #87CEEB; 
     
     /* Role Colors */
-    --role-owner: #808080;      /* Gray */
-    --role-creator: #FF8C00;    /* Orange */
-    --role-rat: #3BA55D;        /* Green */
-    --role-star: #FFD700;       /* Yellow */
-    --role-starprog: #800080;   /* Purple */
-    --role-gamemod: #0000FF;    /* Blue */
-    --role-discordmod: #00008B; /* Dark Blue */
-    --role-webmod: #00FFFF;     /* Cyan */
-    --role-dev: #FFFACD;        /* Light Yellow */
+    --role-owner: #36454F;      /* Gray */
+    --role-creator: #CED11D;    /* Orange */
+    --role-rat: #0AD100;        /* Green */
+    --role-star: #F2FF00;       /* Yellow */
+    --role-starprog: #951DD1;   /* Purple */
+    --role-gamemod: #008FFC;    /* Blue */
+    --role-discordmod: #3453BA; /* Dark Blue */
+    --role-webmod: #4ADDF7;     /* Cyan */
+    --role-dev: #F3FF70;        /* Light Yellow */
 }
 
 body { 
