@@ -55,14 +55,21 @@
     <script>
         const ADMIN_NAME = "DatWeirdFNFfan";
         const currentUser = localStorage.getItem('current_yeep_user');
+        
+        // Basic Security
         if (!currentUser) window.location.href = "login.html";
 
+        // Global DBs
         const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
         const statusDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
         const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
 
-        if (statusDB[currentUser] && statusDB[currentUser].type !== "warn") window.location.href = "ban.html";
+        // Ban Redirect
+        if (statusDB[currentUser] && statusDB[currentUser].type !== "warn") {
+             window.location.href = "ban.html";
+        }
 
+        // Permission Logic
         const myRoles = (currentUser === ADMIN_NAME) ? ["owner"] : (rolesDB[currentUser] || []);
         const isOwner = (currentUser === ADMIN_NAME);
         const isStaff = myRoles.includes("webmod") || myRoles.includes("dev") || isOwner;
@@ -94,37 +101,45 @@
         function submitPost() {
             const content = document.getElementById('postContent').value.trim();
             if(!content) return;
-            let p = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            p.push({ id: Date.now(), username: currentUser, content: content, pinned: false });
-            localStorage.setItem('yeepsPosts', JSON.stringify(p));
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            posts.push({ id: Date.now(), username: currentUser, content: content, pinned: false });
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
             location.reload();
         }
 
-        function deletePost(id) {
+        function deletePost(e, id) {
+            e.stopPropagation(); // Stops the click from affecting other things
             if(!confirm("Delete this post?")) return;
-            let p = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            localStorage.setItem('yeepsPosts', JSON.stringify(p.filter(x => x.id !== id)));
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts.filter(x => x.id !== id)));
             location.reload();
         }
 
-        function togglePin(id) {
+        function togglePin(e, id) {
+            e.stopPropagation();
             if(!isOwner) return;
-            let p = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            let idx = p.findIndex(x => x.id === id);
-            p[idx].pinned = !p[idx].pinned;
-            localStorage.setItem('yeepsPosts', JSON.stringify(p));
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            let idx = posts.findIndex(x => x.id === id);
+            posts[idx].pinned = !posts[idx].pinned;
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
             location.reload();
         }
 
         function loadFeed() {
             const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            const feedDiv = document.getElementById('feed');
+            const featureDiv = document.getElementById('featured-zone');
+            
+            feedDiv.innerHTML = "";
+            featureDiv.innerHTML = "";
+
             const roleNames = { owner: "Owner", creator: "Content Creator", rat: "Lab Rat", star: "Star Creator", starprog: "Star Program", gamemod: "Game Mod", discordmod: "Discord Mod", webmod: "Web Mod", dev: "Game Dev" };
 
             posts.slice().reverse().forEach(p => {
                 let uRoles = (p.username === ADMIN_NAME) ? ["owner"] : (rolesDB[p.username] || []);
                 let pfp = usersDB[p.username]?.pfp || "https://ui-avatars.com/api/?name=" + p.username;
 
-                let badges = uRoles.map(r => `
+                let badgeHTML = uRoles.map(r => `
                     <div class="role-container">
                         <img src="Images/roles/${r}.png" class="role-icon" onerror="this.style.display='none'">
                         <div class="badge role-${r}" style="background:var(--role-${r})">${roleNames[r]}</div>
@@ -134,23 +149,25 @@
                 div.className = `post ${p.pinned ? 'pinned' : ''}`;
                 div.innerHTML = `
                     <div class="post-header">
-                        <img src="${pfp}" class="pfp-img" onclick="location.href='pages/user-profile.html?u=${p.username}'">
+                        <img src="${pfp}" class="pfp-img" onclick="location.href='pages/user-profile.html?u=${p.username}'" style="cursor:pointer;">
                         <div>
                             <strong onclick="location.href='pages/user-profile.html?u=${p.username}'" style="cursor:pointer;">${p.username}</strong>
-                            <div style="display:flex; flex-wrap:wrap; gap:5px;">${badges}</div>
+                            <div style="display:flex; flex-wrap:wrap; gap:5px;">${badgeHTML}</div>
                         </div>
                     </div>
                     <p style="margin:15px 0;">${p.content}</p>
                     <div style="display:flex; gap:15px; font-size:0.85rem;">
                         <a href="pages/comments.html?postId=${p.id}" style="color:var(--yeeps-orange); text-decoration:none; font-weight:bold;">💬 Comments</a>
-                        ${(isStaff || p.username === currentUser) ? `<span onclick="deletePost(${p.id})" style="color:red; cursor:pointer; font-weight:bold;">Delete</span>` : ''}
-                        ${isOwner ? `<span onclick="togglePin(${p.id})" style="color:blue; cursor:pointer; font-weight:bold;">${p.pinned ? 'Unpin' : 'Pin'}</span>` : ''}
+                        ${(isStaff || p.username === currentUser) ? `<span onclick="deletePost(event, ${p.id})" style="color:red; cursor:pointer; font-weight:bold;">Delete</span>` : ''}
+                        ${isOwner ? `<span onclick="togglePin(event, ${p.id})" style="color:blue; cursor:pointer; font-weight:bold;">${p.pinned ? 'Unpin' : 'Pin'}</span>` : ''}
                     </div>
                 `;
-                if(p.pinned) document.getElementById('featured-zone').appendChild(div);
-                else document.getElementById('feed').appendChild(div);
+                
+                if(p.pinned) featureDiv.appendChild(div);
+                else feedDiv.appendChild(div);
             });
         }
+
         function logout() { localStorage.removeItem('current_yeep_user'); location.reload(); }
         loadFeed();
     </script>
