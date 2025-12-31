@@ -11,9 +11,6 @@
             --yeeps-blue: #87CEEB;
             --yeeps-dark: #333;
             --yeeps-pink: #ff4d94;
-            --role-dev: #5865F2; /* Discord Blue */
-            --role-mod: #3BA55D; /* Green */
-            --role-rat: #9ea1a4; /* Gray */
         }
 
         body {
@@ -26,236 +23,201 @@
             padding: 80px 20px 20px 20px;
         }
 
-        /* --- UI ELEMENTS --- */
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; border: 5px solid var(--yeeps-orange); width: 300px; }
-        .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0, 0, 0, 0.8); padding: 10px 0; display: flex; justify-content: center; gap: 15px; z-index: 1000; }
-        .top-nav a { color: white; text-decoration: none; font-weight: bold; font-size: 0.8rem; padding: 5px 10px; border-radius: 5px; }
-        .music-ctrl { position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 50px; border: 2px solid var(--yeeps-orange); z-index: 1000; }
-
-        /* --- POSTS --- */
-        .post { background: white; padding: 15px; margin-bottom: 20px; border-radius: 15px; width: 100%; max-width: 500px; box-shadow: 0 4px 0 rgba(0,0,0,0.05); }
-        .post.pinned { border: 4px solid var(--yeeps-yellow); background: #fffbea; }
+        /* --- MODALS --- */
+        #loginOverlay, #roleModal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); display: flex; 
+            justify-content: center; align-items: center; z-index: 2000; 
+        }
         
-        /* ROLE BADGES */
-        .post-user { font-weight: bold; color: var(--yeeps-orange); display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-        .badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 10px; color: white; text-transform: uppercase; font-weight: 800; border: 1px solid rgba(0,0,0,0.1); }
+        .modal-box { 
+            background: white; padding: 30px; border-radius: 20px; 
+            text-align: center; border: 5px solid var(--yeeps-orange); width: 320px; 
+        }
+
+        /* --- POSTS & UI --- */
+        .post { background: white; padding: 15px; margin-bottom: 20px; border-radius: 15px; width: 100%; max-width: 500px; box-shadow: 0 4px 0 rgba(0,0,0,0.05); }
+        .pfp { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--yeeps-orange); }
+        
+        .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .post-user { font-weight: bold; color: var(--yeeps-orange); display: flex; flex-direction: column; }
+        
+        .badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 10px; color: white; text-transform: uppercase; width: fit-content; }
         .badge-owner { background: var(--yeeps-yellow); color: var(--yeeps-dark); }
-        .badge-dev { background: var(--role-dev); }
-        .badge-mod { background: var(--role-mod); }
-        .badge-rat { background: var(--role-rat); }
-        .badge-reviewer { background: #9b59b6; }
 
-        .media-display { width: 100%; border-radius: 10px; margin-top: 10px; }
         .input-container { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 500px; margin-bottom: 30px; border: 4px solid var(--yeeps-orange); }
-        input, select { width: 95%; padding: 10px; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 10px; }
-
-        .admin-panel { background: #fff9e6; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--yeeps-yellow); font-size: 0.8rem; }
+        input, select { width: 90%; padding: 10px; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; }
+        
+        .btn-main { padding: 10px; background: var(--yeeps-orange); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0, 0, 0, 0.8); padding: 10px 0; display: flex; justify-content: center; gap: 15px; z-index: 1000; }
+        .top-nav a { color: white; text-decoration: none; font-weight: bold; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <div id="loginOverlay">
-        <div class="login-box">
+        <div class="modal-box">
             <h2>Yeeps-Share</h2>
-            <input type="text" id="loginUsername" placeholder="Username...">
-            <button onclick="performLogin()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;">Enter Site</button>
+            <input type="text" id="loginUsername" placeholder="Username">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <input type="text" id="loginPfp" placeholder="PFP Image URL (Optional)">
+            <button class="btn-main" style="width:100%" onclick="performLogin()">Login / Register</button>
+        </div>
+    </div>
+
+    <div id="roleModal" style="display:none;">
+        <div class="modal-box">
+            <h3>Assign Role</h3>
+            <input type="text" id="targetUser" placeholder="Username">
+            <select id="roleSelect">
+                <option value="rat">Lab Rat</option>
+                <option value="reviewer">Reviewer</option>
+                <option value="mod">Moderator</option>
+                <option value="dev">Yeeps Dev</option>
+                <option value="webdev">Website Dev</option>
+                <option value="none">Remove Role</option>
+            </select>
+            <button class="btn-main" style="width:100%" onclick="saveRoleFromPopup()">Apply Role</button>
+            <button onclick="document.getElementById('roleModal').style.display='none'" style="background:none; border:none; cursor:pointer; margin-top:10px;">Close</button>
         </div>
     </div>
 
     <nav class="top-nav">
-        <a href="https://www.meta.com/experiences/7276525889052788/" target="_blank">🎮 Play Yeeps</a>
+        <a href="https://www.meta.com/experiences/7276525889052788/" target="_blank">🎮 Play</a>
         <a href="https://discord.gg/yeeps" target="_blank">💬 Discord</a>
-        <a href="#" onclick="logout()" id="logoutLink" style="display:none; color: #ff4d4d;">Logout</a>
+        <a href="#" onclick="logout()" style="color: #ff4d4d;">Logout</a>
     </nav>
 
     <h1>🧱 Yeeps-Share</h1>
 
-    <div class="music-ctrl">
-        <button id="muteBtn" onclick="toggleMusic()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">🔇</button>
-        <audio id="bgMusic" loop><source src="music/SuburbTheme.ogg" type="audio/ogg"></audio>
-    </div>
-
-    <div id="featured-zone" style="display:none; width: 100%; max-width: 500px;">
-        <div style="background: var(--yeeps-yellow); padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; display: inline-block;">⭐ Featured</div>
-        <div id="featured-feed"></div>
+    <div id="ownerTools" style="display:none; margin-bottom: 20px;">
+        <button class="btn-main" style="background: var(--yeeps-yellow); color:black;" onclick="document.getElementById('roleModal').style.display='flex'">👑 Role Manager</button>
     </div>
 
     <div class="input-container">
-        <input type="text" id="postText" placeholder="What's the news?">
+        <input type="text" id="postText" placeholder="What's up?">
         <select id="mediaType">
             <option value="none">Text Only</option>
-            <option value="link">🔗 Link</option>
             <option value="image">🖼️ Image</option>
-            <option value="video">🎥 Video (.mp4)</option>
+            <option value="link">🔗 Link</option>
         </select>
-        <input type="text" id="mediaUrl" placeholder="Paste URL here..." style="display:none;">
-        <button style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="addPost()">Post</button>
+        <input type="text" id="mediaUrl" placeholder="URL here..." style="display:none;">
+        <button class="btn-main" style="width:100%" onclick="addPost()">Post</button>
     </div>
 
     <div id="feed" style="width: 100%; max-width: 500px;"></div>
 
     <script>
-        // --- NEW ADMIN NAME ---
-        const ADMIN_USERNAME = "DatWeirdFNFfan"; 
+        const ADMIN_USERNAME = "DatWeirdFNFfan";
+        // SET YOUR ADMIN PASSWORD HERE:
+        const ADMIN_PASS = "yeep123"; 
+
         let isAdmin = false;
 
         function performLogin() {
-            const name = document.getElementById('loginUsername').value.trim();
-            if(!name) return;
-            localStorage.setItem('yeeps_username', name);
-            location.reload(); 
+            const user = document.getElementById('loginUsername').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
+            const pfp = document.getElementById('loginPfp').value.trim() || "https://ui-avatars.com/api/?name=" + user;
+
+            if(!user || !pass) { alert("Need Name & Password!"); return; }
+
+            let usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+
+            // Admin Check
+            if(user === ADMIN_USERNAME) {
+                if(pass !== ADMIN_PASS) { alert("Wrong Admin Password!"); return; }
+                isAdmin = true;
+            } else if (usersDB[user] && usersDB[user].password !== pass) {
+                alert("Incorrect password for this username!");
+                return;
+            }
+
+            // Save user data
+            usersDB[user] = { password: pass, pfp: pfp };
+            localStorage.setItem('yeeps_users_db', JSON.stringify(usersDB));
+            localStorage.setItem('current_yeep_user', user);
+            
+            location.reload();
         }
 
-        function checkAdmin(name) { if (name === ADMIN_USERNAME) isAdmin = true; }
-        function logout() { localStorage.removeItem('yeeps_username'); location.reload(); }
+        function renderPost(post) {
+            const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+            const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
+            
+            const userPfp = usersDB[post.username]?.pfp || "https://ui-avatars.com/api/?name=" + post.username;
+            const role = rolesDB[post.username] || "";
 
-        const music = document.getElementById('bgMusic');
-        let isMuted = true;
-        function toggleMusic() {
-            isMuted = !isMuted;
-            isMuted ? music.pause() : music.play();
-            document.getElementById('muteBtn').innerText = isMuted ? "🔇" : "🔊";
+            const postDiv = document.createElement('div');
+            postDiv.className = 'post';
+
+            let badgeHTML = post.username === ADMIN_USERNAME ? '<span class="badge badge-owner">Owner</span>' : (role ? `<span class="badge" style="background:gray">${role}</span>` : '');
+
+            postDiv.innerHTML = `
+                <div class="post-header">
+                    <img src="${userPfp}" class="pfp">
+                    <div class="post-user">
+                        <span>${post.username}</span>
+                        ${badgeHTML}
+                    </div>
+                </div>
+                <div>${post.content}</div>
+                ${post.mediaType === 'image' ? `<img src="${post.mediaUrl}" style="width:100%; border-radius:10px; margin-top:10px;">` : ''}
+                <div style="margin-top:10px;">
+                    <button onclick="deletePost(${post.id})" style="border:none; background:none; cursor:pointer; color:red; font-size:0.7rem; ${(isAdmin || post.username === localStorage.getItem('current_yeep_user')) ? '' : 'display:none'}">Delete</button>
+                </div>
+            `;
+            return postDiv;
         }
-
-        document.getElementById('mediaType').addEventListener('change', function() {
-            document.getElementById('mediaUrl').style.display = (this.value === 'none') ? 'none' : 'block';
-        });
 
         function addPost() {
             const text = document.getElementById('postText').value;
             const type = document.getElementById('mediaType').value;
             const url = document.getElementById('mediaUrl').value;
-            const user = localStorage.getItem('yeeps_username');
+            const user = localStorage.getItem('current_yeep_user');
 
-            if (!text && !url) return;
-
-            const post = {
-                id: Date.now(),
-                username: user,
-                content: text,
-                mediaType: type,
-                mediaUrl: url,
-                isPinned: false,
-                creatorId: getUserId(),
-                likes: 0
-            };
+            if(!text) return;
 
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            posts.push(post);
+            posts.push({ id: Date.now(), username: user, content: text, mediaType: type, mediaUrl: url });
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
-            document.getElementById('postText').value = '';
-            loadPosts();
+            location.reload();
         }
 
-        function renderPost(post) {
-            const postDiv = document.createElement('div');
-            postDiv.className = `post ${post.isPinned ? 'pinned' : ''}`;
-            
-            // Get user role
-            const userRoles = JSON.parse(localStorage.getItem('yeeps_user_roles')) || {};
-            const role = userRoles[post.creatorId] || "";
-
-            let badgeHTML = "";
-            if (post.username === ADMIN_USERNAME) badgeHTML = `<span class="badge badge-owner">OWNER</span>`;
-            else if (role === "dev") badgeHTML = `<span class="badge badge-dev">Yeeps Dev</span>`;
-            else if (role === "webdev") badgeHTML = `<span class="badge badge-dev" style="background:#202225">Web Dev</span>`;
-            else if (role === "mod") badgeHTML = `<span class="badge badge-mod">Moderator</span>`;
-            else if (role === "rat") badgeHTML = `<span class="badge badge-rat">Lab Rat</span>`;
-            else if (role === "reviewer") badgeHTML = `<span class="badge badge-reviewer">Reviewer</span>`;
-
-            let mediaHTML = '';
-            if (post.mediaType === 'link') mediaHTML = `<a href="${post.mediaUrl}" target="_blank">🔗 Link</a>`;
-            else if (post.mediaType === 'image') mediaHTML = `<img src="${post.mediaUrl}" class="media-display">`;
-            else if (post.mediaType === 'video') mediaHTML = `<video controls class="media-display"><source src="${post.mediaUrl}" type="video/mp4"></video>`;
-
-            postDiv.innerHTML = `
-                <div class="post-user">👤 ${post.username} ${badgeHTML}</div>
-                <div style="margin:10px 0">${post.content}</div>
-                ${mediaHTML}
-                <div style="margin-top:10px; display:flex; justify-content:space-between;">
-                    <button onclick="toggleLike(${post.id})" style="border:none; background:none; cursor:pointer;">❤️ ${post.likes || 0}</button>
-                    ${(isAdmin || post.creatorId === getUserId()) ? `<button onclick="deletePost(${post.id})" style="color:red; border:none; background:none; cursor:pointer;">Delete</button>` : ''}
-                </div>
-                ${isAdmin ? `
-                    <div class="admin-panel">
-                        <strong>Owner Tools:</strong><br>
-                        <button onclick="togglePin(${post.id})">Pin</button>
-                        <select onchange="assignRole('${post.creatorId}', this.value)">
-                            <option value="">Give Role...</option>
-                            <option value="rat">Lab Rat</option>
-                            <option value="reviewer">Reviewer</option>
-                            <option value="mod">Moderator</option>
-                            <option value="dev">Yeeps Dev</option>
-                            <option value="webdev">Website Dev</option>
-                            <option value="none">Remove Role</option>
-                        </select>
-                    </div>
-                ` : ''}
-            `;
-            return postDiv;
-        }
-
-        function assignRole(uid, role) {
-            let roles = JSON.parse(localStorage.getItem('yeeps_user_roles')) || {};
-            if(role === "none") delete roles[uid];
-            else roles[uid] = role;
-            localStorage.setItem('yeeps_user_roles', JSON.stringify(roles));
-            loadPosts();
-        }
-
-        function getUserId() {
-            let id = localStorage.getItem('yeeps_user_id');
-            if (!id) { id = 'u_' + Math.random().toString(36).substr(2, 9); localStorage.setItem('yeeps_user_id', id); }
-            return id;
-        }
-
-        function loadPosts() {
-            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const feed = document.getElementById('feed');
-            const fFeed = document.getElementById('featured-feed');
-            feed.innerHTML = ''; fFeed.innerHTML = '';
-            let fCount = 0;
-            posts.sort((a,b) => b.id - a.id).forEach(post => {
-                const el = renderPost(post);
-                if (post.isPinned) { fFeed.appendChild(el); fCount++; }
-                else { feed.appendChild(el); }
-            });
-            document.getElementById('featured-zone').style.display = fCount > 0 ? 'block' : 'none';
+        function saveRoleFromPopup() {
+            const target = document.getElementById('targetUser').value.trim();
+            const role = document.getElementById('roleSelect').value;
+            let rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
+            if(role === "none") delete rolesDB[target]; else rolesDB[target] = role;
+            localStorage.setItem('yeeps_roles_db', JSON.stringify(rolesDB));
+            location.reload();
         }
 
         function deletePost(id) {
-            if (!confirm("Delete post?")) return;
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             posts = posts.filter(p => p.id !== id);
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
-            loadPosts();
+            location.reload();
         }
 
-        function togglePin(id) {
-            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const i = posts.findIndex(p => p.id === id);
-            posts[i].isPinned = !posts[i].isPinned;
-            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
-            loadPosts();
-        }
-
-        function toggleLike(id) {
-            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const idx = posts.findIndex(p => p.id === id);
-            posts[idx].likes = (posts[idx].likes || 0) + 1;
-            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
-            loadPosts();
-        }
+        function logout() { localStorage.removeItem('current_yeep_user'); location.reload(); }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const savedName = localStorage.getItem('yeeps_username');
-            if (savedName) {
-                checkAdmin(savedName);
+            const currentUser = localStorage.getItem('current_yeep_user');
+            if(currentUser) {
                 document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('logoutLink').style.display = 'block';
+                if(currentUser === ADMIN_USERNAME) document.getElementById('ownerTools').style.display = 'block';
+                loadPosts();
             }
-            loadPosts();
+        });
+
+        function loadPosts() {
+            const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            const feed = document.getElementById('feed');
+            posts.reverse().forEach(p => feed.appendChild(renderPost(p)));
+        }
+
+        document.getElementById('mediaType').addEventListener('change', function() {
+            document.getElementById('mediaUrl').style.display = this.value === 'none' ? 'none' : 'block';
         });
     </script>
 </body>
