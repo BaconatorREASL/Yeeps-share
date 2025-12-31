@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile | Yeeps-Share</title>
+    <style>
+        :root { --yeeps-orange: #FF8C00; --yeeps-blue: #87CEEB; }
+        body { 
+            font-family: 'Comic Sans MS', sans-serif; 
+            background: var(--yeeps-blue); 
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 50px; margin: 0; 
+        }
+        .editor-card { 
+            background: white; padding: 30px; border-radius: 20px; 
+            width: 350px; text-align: center; border: 5px solid var(--yeeps-orange);
+            box-shadow: 0 8px 0 rgba(0,0,0,0.1);
+        }
+        .current-pfp { 
+            width: 80px; height: 80px; border-radius: 50%; 
+            object-fit: cover; border: 3px solid var(--yeeps-orange); margin-bottom: 15px; 
+        }
+        input, textarea { 
+            width: 90%; padding: 10px; margin-bottom: 15px; 
+            border-radius: 10px; border: 2px solid #ddd; font-family: inherit;
+        }
+        .btn-save { 
+            background: var(--yeeps-orange); color: white; border: none; 
+            padding: 12px; width: 100%; border-radius: 10px; 
+            font-weight: bold; cursor: pointer; 
+        }
+        .back-link { color: white; text-decoration: none; font-weight: bold; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <a href="../index.html" class="back-link">⬅ Back to Feed</a>
+
+    <div class="editor-card">
+        <h2 style="color: var(--yeeps-orange);">Edit Profile</h2>
+        <img id="displayPfp" src="" class="current-pfp">
+        
+        <p style="font-size: 0.8rem; color: #666;">Profile Picture URL</p>
+        <input type="text" id="editPfp" placeholder="Paste image link (.jpg, .png)">
+        
+        <p style="font-size: 0.8rem; color: #666;">Your Bio</p>
+        <textarea id="editBio" rows="3" placeholder="Tell us about yourself..."></textarea>
+        
+        <p style="font-size: 0.8rem; color: #666;">New Password</p>
+        <input type="password" id="editPass" placeholder="Enter new password">
+        
+        <button class="btn-save" onclick="saveProfile()">Save Changes</button>
+    </div>
+
+    <script>
+        // Check if logged in
+        const user = localStorage.getItem('current_yeep_user');
+        if (!user) { window.location.href = "../login.html"; }
+
+        // Load existing data
+        function loadCurrentData() {
+            const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+            const data = usersDB[user] || {};
+            
+            document.getElementById('displayPfp').src = data.pfp || "https://ui-avatars.com/api/?name=" + user;
+            document.getElementById('editPfp').value = data.pfp || "";
+            document.getElementById('editBio').value = data.bio || "";
+            document.getElementById('editPass').value = data.password || "";
+        }
+
+        function saveProfile() {
+            let usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+            
+            const newPfp = document.getElementById('editPfp').value.trim();
+            const newBio = document.getElementById('editBio').value.trim();
+            const newPass = document.getElementById('editPass').value.trim();
+
+            if (!newPass) { alert("Password cannot be empty!"); return; }
+
+            // Update database
+            usersDB[user] = {
+                password: newPass,
+                pfp: newPfp,
+                bio: newBio
+            };
+
+            localStorage.setItem('yeeps_users_db', JSON.stringify(usersDB));
+            alert("Profile successfully updated!");
+            location.reload(); // Refresh to show new PFP
+        }
+
+        loadCurrentData();
+    </script>
+</body>
+</html>
