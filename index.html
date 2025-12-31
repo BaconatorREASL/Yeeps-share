@@ -1,4 +1,4 @@
-               <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -23,7 +23,27 @@
             padding: 80px 20px 20px 20px;
         }
 
-        /* NAVIGATION & MUSIC */
+        /* --- LOGIN MODAL --- */
+        #loginOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .login-box {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            border: 5px solid var(--yeeps-orange);
+            width: 300px;
+        }
+
+        /* --- NAVIGATION & MUSIC --- */
         .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0, 0, 0, 0.8); padding: 10px 0; display: flex; justify-content: center; gap: 15px; z-index: 1000; }
         .top-nav a { color: white; text-decoration: none; font-weight: bold; font-size: 0.8rem; padding: 5px 10px; border-radius: 5px; }
         .top-nav a:hover { background: var(--yeeps-orange); }
@@ -31,76 +51,63 @@
         .music-ctrl { position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 50px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; z-index: 1000; border: 2px solid var(--yeeps-orange); }
         .mute-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
 
-        /* USER PROFILE SECTION */
-        .profile-container {
-            background: #fff;
-            padding: 15px;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 500px;
-            margin-bottom: 20px;
-            border: 3px solid var(--yeeps-yellow);
-            text-align: center;
-        }
-
-        /* POST STYLES */
+        /* --- POST STYLES --- */
         h1 { color: white; text-shadow: 3px 3px 0px var(--yeeps-orange); font-size: 2.5rem; margin-bottom: 10px; }
         
         .input-container { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 500px; margin-bottom: 30px; border: 4px solid var(--yeeps-orange); box-shadow: 0 8px 0 rgba(0,0,0,0.1); }
         input, select { width: 95%; padding: 10px; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; }
         
-        #feed, #featured-feed { width: 100%; max-width: 500px; }
-        .featured-label { background: var(--yeeps-yellow); padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; display: inline-block; }
-
-        .post { background: white; padding: 15px; margin-bottom: 20px; border-radius: 15px; position: relative; box-shadow: 0 4px 0 rgba(0,0,0,0.05); }
+        .post { background: white; padding: 15px; margin-bottom: 20px; border-radius: 15px; position: relative; width: 100%; max-width: 500px; }
         .post.pinned { border: 4px solid var(--yeeps-yellow); background: #fffbea; }
         
-        .post-user { font-weight: bold; color: var(--yeeps-orange); font-size: 0.9rem; margin-bottom: 5px; display: block; }
-        .media-display { width: 100%; border-radius: 10px; margin-top: 10px; }
-        .link-card { display: block; background: #f0f2f5; padding: 10px; border-radius: 10px; text-decoration: none; color: #007bff; margin-top: 10px; border: 1px solid #ddd; }
-
-        /* BUTTONS */
-        .post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
+        /* ADMIN BADGE STYLE */
+        .post-user { font-weight: bold; color: var(--yeeps-orange); font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
+        .verified-badge { background: var(--yeeps-yellow); color: var(--yeeps-dark); font-size: 0.6rem; padding: 2px 6px; border-radius: 10px; border: 1px solid var(--yeeps-orange); text-transform: uppercase; }
         
-        .like-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; gap: 5px; color: #777; }
-        .like-btn.liked { color: var(--yeeps-pink); }
+        .media-display { width: 100%; border-radius: 10px; margin-top: 10px; }
+        .link-card { display: block; background: #f0f2f5; padding: 10px; border-radius: 10px; text-decoration: none; color: #007bff; margin-top: 10px; }
 
-        .user-del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem; }
+        .post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
+        .like-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+        .like-btn.liked { color: var(--yeeps-pink); }
+        .user-del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
 
         .admin-panel { background: #fff9e6; padding: 8px; border-radius: 8px; margin-top: 10px; display: flex; gap: 5px; border: 1px solid var(--yeeps-yellow); }
-        .admin-btn { border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; background: var(--yeeps-yellow); }
     </style>
 </head>
 <body>
 
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2>Yeeps-Share Login</h2>
+            <input type="text" id="loginUsername" placeholder="Username...">
+            <button onclick="performLogin()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;">Enter Site</button>
+        </div>
+    </div>
+
     <nav class="top-nav">
-        <a href="https://www.oculus.com/experiences/quest/7276525922406858/" target="_blank">🎮 Play</a>
+        <a href="https://www.meta.com/experiences/7276525889052788/" target="_blank">🎮 Play Yeeps</a>
         <a href="https://discord.gg/yeeps" target="_blank">💬 Discord</a>
         <a href="https://yeeps.com/" target="_blank">🌐 Web</a>
+        <a href="#" onclick="logout()" id="logoutLink" style="display:none; color: #ff4d4d;">Logout</a>
     </nav>
 
     <h1>🧱 Yeeps-Share</h1>
 
-    <div class="profile-container">
-        <strong>Your Username:</strong> 
-        <input type="text" id="usernameInput" placeholder="Enter name..." onchange="updateProfile()" style="width: 60%; margin: 5px;">
-        <div id="adminBadge" style="display:none; color: gold; font-weight: bold;">✨ ADMIN ACTIVE ✨</div>
-    </div>
-
     <div class="music-ctrl">
         <button id="muteBtn" class="mute-btn" onclick="toggleMusic()">🔇</button>
         <audio id="bgMusic" loop>
-            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+            <source src="music/SuburbTheme.ogg" type="audio/ogg">
         </audio>
     </div>
 
     <div id="featured-zone" style="display:none; width: 100%; max-width: 500px;">
-        <div class="featured-label">⭐ Featured</div>
+        <div style="background: var(--yeeps-yellow); padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; display: inline-block;">⭐ Featured</div>
         <div id="featured-feed"></div>
     </div>
 
     <div class="input-container">
-        <input type="text" id="postText" placeholder="What's happening?">
+        <input type="text" id="postText" placeholder="Share a clip or a tip!">
         <select id="mediaType">
             <option value="none">Text Only</option>
             <option value="link">🔗 Link</option>
@@ -111,29 +118,28 @@
         <button style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="addPost()">Post to Feed</button>
     </div>
 
-    <div id="feed"></div>
+    <div id="feed" style="width: 100%; max-width: 500px;"></div>
 
     <script>
-        // --- CONFIGURATION ---
-        const ADMIN_USERNAME = "DatWeirdFNFFan"; // CHANGE THIS TO YOUR SECRET NAME!
-        // ---------------------
-
+        // --- CONFIG ---
+        const ADMIN_USERNAME = "YeepMaster123"; // Remember this name for admin powers!
         let isAdmin = false;
 
-        // --- PROFILE LOGIC ---
-        function updateProfile() {
-            const name = document.getElementById('usernameInput').value;
+        // --- LOGIN ---
+        function performLogin() {
+            const name = document.getElementById('loginUsername').value.trim();
+            if(!name) return;
             localStorage.setItem('yeeps_username', name);
-            
-            if (name === ADMIN_USERNAME) {
-                isAdmin = true;
-                document.getElementById('adminBadge').style.display = 'block';
-                alert("Admin Access Granted!");
-            } else {
-                isAdmin = false;
-                document.getElementById('adminBadge').style.display = 'none';
-            }
-            loadPosts(); // Refresh to show/hide admin buttons
+            location.reload(); 
+        }
+
+        function checkAdmin(name) {
+            if (name === ADMIN_USERNAME) isAdmin = true;
+        }
+
+        function logout() {
+            localStorage.removeItem('yeeps_username');
+            location.reload();
         }
 
         // --- MUSIC ---
@@ -145,17 +151,16 @@
             document.getElementById('muteBtn').innerText = isMuted ? "🔇" : "🔊";
         }
 
-        // --- POSTING ---
-        const typeSelector = document.getElementById('mediaType');
-        typeSelector.addEventListener('change', () => {
-            document.getElementById('mediaUrl').style.display = (typeSelector.value === 'none') ? 'none' : 'block';
+        // --- CORE LOGIC ---
+        document.getElementById('mediaType').addEventListener('change', function() {
+            document.getElementById('mediaUrl').style.display = (this.value === 'none') ? 'none' : 'block';
         });
 
         function addPost() {
             const text = document.getElementById('postText').value;
             const type = document.getElementById('mediaType').value;
             const url = document.getElementById('mediaUrl').value;
-            const user = localStorage.getItem('yeeps_username') || "Anonymous Yeep";
+            const user = localStorage.getItem('yeeps_username');
 
             if (!text && !url) return;
 
@@ -167,7 +172,8 @@
                 mediaUrl: url,
                 isPinned: false,
                 creatorId: getUserId(),
-                likes: 0
+                likes: 0,
+                isAdminPost: (user === ADMIN_USERNAME) // Tag post as Admin
             };
 
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
@@ -190,11 +196,14 @@
 
             const isCreator = post.creatorId === getUserId();
             const deleteBtn = (isCreator || isAdmin) ? `<button class="user-del-btn" onclick="deletePost(${post.id})">Delete</button>` : '';
-            const hasLiked = getLikedPosts().includes(post.id);
+            const hasLiked = (JSON.parse(localStorage.getItem('yeeps_liked')) || []).includes(post.id);
+
+            // ADMIN BADGE LOGIC
+            const adminBadge = post.isAdminPost ? `<span class="verified-badge">OWNER</span>` : '';
 
             postDiv.innerHTML = `
-                <span class="post-user">👤 ${post.username}</span>
-                <div class="post-content">${post.content}</div>
+                <div class="post-user">👤 ${post.username} ${adminBadge}</div>
+                <div class="post-content" style="margin-top:5px;">${post.content}</div>
                 ${mediaHTML}
                 <div class="post-footer">
                     <button class="like-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
@@ -202,36 +211,27 @@
                     </button>
                     ${deleteBtn}
                 </div>
-                ${isAdmin ? `
-                    <div class="admin-panel">
-                        <button class="admin-btn" onclick="togglePin(${post.id})">${post.isPinned ? 'Unstar' : '⭐ Star This'}</button>
-                    </div>
-                ` : ''}
+                ${isAdmin ? `<div class="admin-panel"><button onclick="togglePin(${post.id})" style="border:none; cursor:pointer; background:none; font-weight:bold;">${post.isPinned ? '❌ Unstar' : '⭐ Star This'}</button></div>` : ''}
             `;
             return postDiv;
         }
 
-        // --- HELPERS ---
         function getUserId() {
             let id = localStorage.getItem('yeeps_user_id');
-            if (!id) { id = 'user_' + Math.random().toString(36).substr(2, 9); localStorage.setItem('yeeps_user_id', id); }
+            if (!id) { id = 'u_' + Math.random().toString(36).substr(2, 9); localStorage.setItem('yeeps_user_id', id); }
             return id;
         }
 
-        function getLikedPosts() { return JSON.parse(localStorage.getItem('yeeps_liked')) || []; }
-
         function toggleLike(id) {
-            let liked = getLikedPosts();
+            let liked = JSON.parse(localStorage.getItem('yeeps_liked')) || [];
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const pIndex = posts.findIndex(p => p.id === id);
-            if (pIndex === -1) return;
-
+            const idx = posts.findIndex(p => p.id === id);
             if (liked.includes(id)) {
-                liked = liked.filter(lid => lid !== id);
-                posts[pIndex].likes = Math.max(0, (posts[pIndex].likes || 1) - 1);
+                liked = liked.filter(l => l !== id);
+                posts[idx].likes = Math.max(0, (posts[idx].likes || 1) - 1);
             } else {
                 liked.push(id);
-                posts[pIndex].likes = (posts[pIndex].likes || 0) + 1;
+                posts[idx].likes = (posts[idx].likes || 0) + 1;
             }
             localStorage.setItem('yeeps_liked', JSON.stringify(liked));
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
@@ -243,14 +243,13 @@
             const feed = document.getElementById('feed');
             const fFeed = document.getElementById('featured-feed');
             feed.innerHTML = ''; fFeed.innerHTML = '';
-            
-            let featuredCount = 0;
+            let fCount = 0;
             posts.sort((a,b) => b.id - a.id).forEach(post => {
                 const el = renderPost(post);
-                if (post.isPinned) { fFeed.appendChild(el); featuredCount++; }
+                if (post.isPinned) { fFeed.appendChild(el); fCount++; }
                 else { feed.appendChild(el); }
             });
-            document.getElementById('featured-zone').style.display = featuredCount > 0 ? 'block' : 'none';
+            document.getElementById('featured-zone').style.display = fCount > 0 ? 'block' : 'none';
         }
 
         function deletePost(id) {
@@ -269,12 +268,12 @@
             loadPosts();
         }
 
-        // Initialize user name if it exists
         document.addEventListener('DOMContentLoaded', () => {
             const savedName = localStorage.getItem('yeeps_username');
             if (savedName) {
-                document.getElementById('usernameInput').value = savedName;
-                updateProfile();
+                checkAdmin(savedName);
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('logoutLink').style.display = 'block';
             }
             loadPosts();
         });
