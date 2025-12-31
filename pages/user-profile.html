@@ -5,30 +5,46 @@
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-    <nav class="top-nav"><a href="../index.html">🏠 Home</a></nav>
-    <div id="pHeader" style="margin-top:20px;"></div>
-    <div id="pFeed"></div>
+    <nav class="top-nav">
+        <a href="../index.html">🏠 Home</a>
+    </nav>
+
+    <div id="profileContent" style="margin-top:50px;"></div>
+    <div id="userPosts" style="width:480px; margin:auto;"></div>
 
     <script>
         const u = new URLSearchParams(window.location.search).get('u');
-        const uDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
-        const rDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
+        const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+        const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
         const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-        const data = uDB[u] || {};
+        
+        const data = usersDB[u] || {};
+        let uRoles = (u === "DatWeirdFNFfan") ? ["owner"] : (rolesDB[u] || []);
+        if (!Array.isArray(uRoles)) uRoles = [uRoles];
 
-        document.getElementById('pHeader').innerHTML = `
-            <div class="input-box" style="text-align:center;">
-                <img src="https://ui-avatars.com/api/?name=${u}" style="width:80px; border-radius:50%;">
-                <h2>${u}</h2>
-                <p>${data.bio || "No bio set."}</p>
-            </div>`;
+        const roleNames = { owner: "Owner", creator: "Creator", rat: "Lab Rat", star: "Star", starprog: "Star Program", gamemod: "Game Mod", discordmod: "Discord Mod", webmod: "Web Mod", dev: "Dev" };
 
-        const list = document.getElementById('pFeed');
+        let roleHTML = uRoles.map(r => `
+            <div class="role-card">
+                <img src="../Images/roles/${r}.png" style="width:20px;" onerror="this.style.display='none'">
+                <span class="role-${r}" style="font-weight:bold;">${roleNames[r]}</span>
+            </div>
+        `).join('');
+
+        document.getElementById('profileContent').innerHTML = `
+            <div class="admin-panel" style="text-align:center; margin:auto; margin-bottom:20px;">
+                <img src="${data.pfp || 'https://ui-avatars.com/api/?name='+u}" class="pfp-large">
+                <h1 class="${uRoles.length > 0 ? 'role-'+uRoles[0] : ''}">${u}</h1>
+                <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+                    ${roleHTML}
+                </div>
+                <p style="color:#555; font-style:italic;">${data.bio || "No bio set."}</p>
+            </div>
+        `;
+
+        const feed = document.getElementById('userPosts');
         posts.filter(p => p.username === u).reverse().forEach(p => {
-            list.innerHTML += `
-                <div class="post">
-                    <p>${p.content}</p>
-                </div>`;
+            feed.innerHTML += `<div class="post"><p>${p.content}</p></div>`;
         });
     </script>
 </body>
