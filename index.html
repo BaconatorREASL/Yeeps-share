@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+               <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,6 +10,7 @@
             --yeeps-yellow: #FFD700;
             --yeeps-blue: #87CEEB;
             --yeeps-dark: #333;
+            --yeeps-pink: #ff4d94;
         }
 
         body {
@@ -19,228 +20,241 @@
             flex-direction: column;
             align-items: center;
             margin: 0;
-            padding: 20px;
-            padding-top: 80px; /* Space for the top nav */
+            padding: 80px 20px 20px 20px;
         }
 
-        /* --- OFFICIAL LINKS BAR --- */
-        .top-nav {
-            position: fixed;
-            top: 0;
+        /* NAVIGATION & MUSIC */
+        .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0, 0, 0, 0.8); padding: 10px 0; display: flex; justify-content: center; gap: 15px; z-index: 1000; }
+        .top-nav a { color: white; text-decoration: none; font-weight: bold; font-size: 0.8rem; padding: 5px 10px; border-radius: 5px; }
+        .top-nav a:hover { background: var(--yeeps-orange); }
+
+        .music-ctrl { position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 50px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; z-index: 1000; border: 2px solid var(--yeeps-orange); }
+        .mute-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+
+        /* USER PROFILE SECTION */
+        .profile-container {
+            background: #fff;
+            padding: 15px;
+            border-radius: 15px;
             width: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 0;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            z-index: 1000;
+            max-width: 500px;
+            margin-bottom: 20px;
+            border: 3px solid var(--yeeps-yellow);
+            text-align: center;
         }
 
-        .top-nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.9rem;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        .top-nav a:hover {
-            background: var(--yeeps-orange);
-        }
-
-        /* --- MUSIC CONTROLLER --- */
-        .music-ctrl {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            padding: 10px;
-            border-radius: 50px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 1000;
-            border: 2px solid var(--yeeps-orange);
-        }
-
-        .mute-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        /* --- REST OF THE STYLES --- */
-        h1 {
-            color: white;
-            text-shadow: 3px 3px 0px var(--yeeps-orange);
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
-
-        #featured-zone { width: 100%; max-width: 550px; margin-bottom: 20px; display: none; }
-        .featured-label { background-color: var(--yeeps-yellow); color: var(--yeeps-dark); padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 10px; border: 2px solid white; }
-
-        .input-container { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 550px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; border: 4px solid var(--yeeps-orange); box-shadow: 0 8px 0 rgba(0,0,0,0.1); }
-        input, select { padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem; }
-        button.post-btn { padding: 12px; background-color: var(--yeeps-orange); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
-
-        #feed { width: 100%; max-width: 550px; }
-        .post { background: white; padding: 15px; margin-bottom: 20px; border-radius: 15px; position: relative; }
-        .post.pinned { border: 4px solid var(--yeeps-yellow); background: #fffbea; }
-        .media-display { width: 100%; border-radius: 10px; margin-top: 10px; }
-        .link-card { display: block; background: #f0f2f5; padding: 15px; border-radius: 10px; text-decoration: none; color: #007bff; font-weight: bold; margin-top: 10px; }
+        /* POST STYLES */
+        h1 { color: white; text-shadow: 3px 3px 0px var(--yeeps-orange); font-size: 2.5rem; margin-bottom: 10px; }
         
-        .admin-controls { border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px; display: none; justify-content: flex-end; gap: 10px; }
-        .admin-btn { padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .pin-btn { background-color: var(--yeeps-yellow); }
-        .del-btn { background-color: #ff4d4d; color: white; }
-        footer { margin-top: 50px; color: rgba(255,255,255,0.6); font-size: 0.8rem; cursor: pointer; }
+        .input-container { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 500px; margin-bottom: 30px; border: 4px solid var(--yeeps-orange); box-shadow: 0 8px 0 rgba(0,0,0,0.1); }
+        input, select { width: 95%; padding: 10px; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; }
+        
+        #feed, #featured-feed { width: 100%; max-width: 500px; }
+        .featured-label { background: var(--yeeps-yellow); padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; display: inline-block; }
+
+        .post { background: white; padding: 15px; margin-bottom: 20px; border-radius: 15px; position: relative; box-shadow: 0 4px 0 rgba(0,0,0,0.05); }
+        .post.pinned { border: 4px solid var(--yeeps-yellow); background: #fffbea; }
+        
+        .post-user { font-weight: bold; color: var(--yeeps-orange); font-size: 0.9rem; margin-bottom: 5px; display: block; }
+        .media-display { width: 100%; border-radius: 10px; margin-top: 10px; }
+        .link-card { display: block; background: #f0f2f5; padding: 10px; border-radius: 10px; text-decoration: none; color: #007bff; margin-top: 10px; border: 1px solid #ddd; }
+
+        /* BUTTONS */
+        .post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
+        
+        .like-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; gap: 5px; color: #777; }
+        .like-btn.liked { color: var(--yeeps-pink); }
+
+        .user-del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem; }
+
+        .admin-panel { background: #fff9e6; padding: 8px; border-radius: 8px; margin-top: 10px; display: flex; gap: 5px; border: 1px solid var(--yeeps-yellow); }
+        .admin-btn { border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; background: var(--yeeps-yellow); }
     </style>
 </head>
 <body>
 
     <nav class="top-nav">
-        <a href="https://www.oculus.com/experiences/quest/7276525922406858/" target="_blank">🎮 Play Yeeps</a>
-        <a href="https://discord.gg/yeeps" target="_blank">💬 Official Discord</a>
-        <a href="https://yeeps.com/" target="_blank">🌐 Official Website</a>
+        <a href="https://www.oculus.com/experiences/quest/7276525922406858/" target="_blank">🎮 Play</a>
+        <a href="https://discord.gg/yeeps" target="_blank">💬 Discord</a>
+        <a href="https://yeeps.com/" target="_blank">🌐 Web</a>
     </nav>
 
     <h1>🧱 Yeeps-Share</h1>
 
+    <div class="profile-container">
+        <strong>Your Username:</strong> 
+        <input type="text" id="usernameInput" placeholder="Enter name..." onchange="updateProfile()" style="width: 60%; margin: 5px;">
+        <div id="adminBadge" style="display:none; color: gold; font-weight: bold;">✨ ADMIN ACTIVE ✨</div>
+    </div>
+
     <div class="music-ctrl">
-        <span style="font-size: 0.8rem; font-weight: bold;">Yeeps Tunes:</span>
         <button id="muteBtn" class="mute-btn" onclick="toggleMusic()">🔇</button>
         <audio id="bgMusic" loop>
-            <source src="music/SuburbTheme.ogg" type="audio/mpeg">
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
         </audio>
     </div>
 
-    <div id="featured-zone">
-        <div class="featured-label">⭐ Featured Posts</div>
+    <div id="featured-zone" style="display:none; width: 100%; max-width: 500px;">
+        <div class="featured-label">⭐ Featured</div>
         <div id="featured-feed"></div>
     </div>
 
     <div class="input-container">
-        <h3>Share your stuff!</h3>
-        <input type="text" id="postText" placeholder="What's happening in the game?">
-        
+        <input type="text" id="postText" placeholder="What's happening?">
         <select id="mediaType">
             <option value="none">Text Only</option>
-            <option value="link">🔗 Website Link</option>
-            <option value="image">🖼️ Image URL</option>
-            <option value="video">🎥 Video URL (.mp4)</option>
+            <option value="link">🔗 Link</option>
+            <option value="image">🖼️ Image</option>
+            <option value="video">🎥 Video (.mp4)</option>
         </select>
-        <input type="text" id="mediaUrl" placeholder="Paste link here..." style="display:none;">
-        <button class="post-btn" onclick="addPost()">Post It!</button>
+        <input type="text" id="mediaUrl" placeholder="Paste URL here..." style="display:none;">
+        <button style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="addPost()">Post to Feed</button>
     </div>
 
     <div id="feed"></div>
 
-    <footer onclick="attemptLogin()">Admin Login</footer>
-
     <script>
-        // --- ADMIN CONFIG ---
-        const ADMIN_PASSWORD = "yeeps"; 
+        // --- CONFIGURATION ---
+        const ADMIN_USERNAME = "DatWeirdFNFFan"; // CHANGE THIS TO YOUR SECRET NAME!
+        // ---------------------
+
         let isAdmin = false;
 
-        // --- MUSIC LOGIC ---
-        const music = document.getElementById('bgMusic');
-        const muteBtn = document.getElementById('muteBtn');
-        let isMuted = true;
-
-        function toggleMusic() {
-            if (isMuted) {
-                music.play();
-                muteBtn.innerText = "🔊";
-                isMuted = false;
+        // --- PROFILE LOGIC ---
+        function updateProfile() {
+            const name = document.getElementById('usernameInput').value;
+            localStorage.setItem('yeeps_username', name);
+            
+            if (name === ADMIN_USERNAME) {
+                isAdmin = true;
+                document.getElementById('adminBadge').style.display = 'block';
+                alert("Admin Access Granted!");
             } else {
-                music.pause();
-                muteBtn.innerText = "🔇";
-                isMuted = true;
+                isAdmin = false;
+                document.getElementById('adminBadge').style.display = 'none';
             }
+            loadPosts(); // Refresh to show/hide admin buttons
         }
 
-        // --- POSTING LOGIC ---
-        const typeSelector = document.getElementById('mediaType');
-        const urlInput = document.getElementById('mediaUrl');
+        // --- MUSIC ---
+        const music = document.getElementById('bgMusic');
+        let isMuted = true;
+        function toggleMusic() {
+            isMuted = !isMuted;
+            isMuted ? music.pause() : music.play();
+            document.getElementById('muteBtn').innerText = isMuted ? "🔇" : "🔊";
+        }
 
-        typeSelector.addEventListener('change', function() {
-            urlInput.style.display = (this.value === 'none') ? 'none' : 'block';
+        // --- POSTING ---
+        const typeSelector = document.getElementById('mediaType');
+        typeSelector.addEventListener('change', () => {
+            document.getElementById('mediaUrl').style.display = (typeSelector.value === 'none') ? 'none' : 'block';
         });
 
-        document.addEventListener('DOMContentLoaded', loadPosts);
-
         function addPost() {
-            const textInput = document.getElementById('postText');
-            const typeInput = document.getElementById('mediaType');
-            const urlInputBox = document.getElementById('mediaUrl');
+            const text = document.getElementById('postText').value;
+            const type = document.getElementById('mediaType').value;
+            const url = document.getElementById('mediaUrl').value;
+            const user = localStorage.getItem('yeeps_username') || "Anonymous Yeep";
 
-            if (!textInput.value && !urlInputBox.value) return;
+            if (!text && !url) return;
 
             const post = {
                 id: Date.now(),
-                content: textInput.value,
-                mediaType: typeInput.value,
-                mediaUrl: urlInputBox.value,
-                isPinned: false
+                username: user,
+                content: text,
+                mediaType: type,
+                mediaUrl: url,
+                isPinned: false,
+                creatorId: getUserId(),
+                likes: 0
             };
 
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             posts.push(post);
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
             
-            textInput.value = ''; urlInputBox.value = '';
+            document.getElementById('postText').value = '';
+            document.getElementById('mediaUrl').value = '';
             loadPosts();
         }
 
         function renderPost(post) {
             const postDiv = document.createElement('div');
             postDiv.className = `post ${post.isPinned ? 'pinned' : ''}`;
-            postDiv.id = post.id;
-
+            
             let mediaHTML = '';
-            if (post.mediaType === 'link') {
-                mediaHTML = `<a href="${post.mediaUrl}" target="_blank" class="link-card">🔗 Visit: ${post.mediaUrl}</a>`;
-            } else if (post.mediaType === 'image') {
-                mediaHTML = `<img src="${post.mediaUrl}" class="media-display">`;
-            } else if (post.mediaType === 'video') {
-                mediaHTML = `<video controls class="media-display"><source src="${post.mediaUrl}" type="video/mp4"></video>`;
-            }
+            if (post.mediaType === 'link') mediaHTML = `<a href="${post.mediaUrl}" target="_blank" class="link-card">🔗 Visit Link</a>`;
+            else if (post.mediaType === 'image') mediaHTML = `<img src="${post.mediaUrl}" class="media-display">`;
+            else if (post.mediaType === 'video') mediaHTML = `<video controls class="media-display"><source src="${post.mediaUrl}" type="video/mp4"></video>`;
+
+            const isCreator = post.creatorId === getUserId();
+            const deleteBtn = (isCreator || isAdmin) ? `<button class="user-del-btn" onclick="deletePost(${post.id})">Delete</button>` : '';
+            const hasLiked = getLikedPosts().includes(post.id);
 
             postDiv.innerHTML = `
+                <span class="post-user">👤 ${post.username}</span>
                 <div class="post-content">${post.content}</div>
                 ${mediaHTML}
-                <div class="admin-controls" style="display: ${isAdmin ? 'flex' : 'none'}">
-                    <button class="admin-btn pin-btn" onclick="togglePin(${post.id})">${post.isPinned ? 'Un-Star' : '⭐ Star'}</button>
-                    <button class="admin-btn del-btn" onclick="deletePost(${post.id})">Delete</button>
+                <div class="post-footer">
+                    <button class="like-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                        ${hasLiked ? '❤️' : '🤍'} <span>${post.likes || 0}</span>
+                    </button>
+                    ${deleteBtn}
                 </div>
+                ${isAdmin ? `
+                    <div class="admin-panel">
+                        <button class="admin-btn" onclick="togglePin(${post.id})">${post.isPinned ? 'Unstar' : '⭐ Star This'}</button>
+                    </div>
+                ` : ''}
             `;
             return postDiv;
         }
 
+        // --- HELPERS ---
+        function getUserId() {
+            let id = localStorage.getItem('yeeps_user_id');
+            if (!id) { id = 'user_' + Math.random().toString(36).substr(2, 9); localStorage.setItem('yeeps_user_id', id); }
+            return id;
+        }
+
+        function getLikedPosts() { return JSON.parse(localStorage.getItem('yeeps_liked')) || []; }
+
+        function toggleLike(id) {
+            let liked = getLikedPosts();
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            const pIndex = posts.findIndex(p => p.id === id);
+            if (pIndex === -1) return;
+
+            if (liked.includes(id)) {
+                liked = liked.filter(lid => lid !== id);
+                posts[pIndex].likes = Math.max(0, (posts[pIndex].likes || 1) - 1);
+            } else {
+                liked.push(id);
+                posts[pIndex].likes = (posts[pIndex].likes || 0) + 1;
+            }
+            localStorage.setItem('yeeps_liked', JSON.stringify(liked));
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
+            loadPosts();
+        }
+
         function loadPosts() {
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const mainFeed = document.getElementById('feed');
-            const featuredFeed = document.getElementById('featured-feed');
-            const featuredZone = document.getElementById('featured-zone');
+            const feed = document.getElementById('feed');
+            const fFeed = document.getElementById('featured-feed');
+            feed.innerHTML = ''; fFeed.innerHTML = '';
             
-            mainFeed.innerHTML = ''; featuredFeed.innerHTML = '';
-            let hasFeatured = false;
-
-            posts.forEach(post => {
+            let featuredCount = 0;
+            posts.sort((a,b) => b.id - a.id).forEach(post => {
                 const el = renderPost(post);
-                if (post.isPinned) { featuredFeed.prepend(el); hasFeatured = true; }
-                else { mainFeed.prepend(el); }
+                if (post.isPinned) { fFeed.appendChild(el); featuredCount++; }
+                else { feed.appendChild(el); }
             });
-            featuredZone.style.display = hasFeatured ? 'block' : 'none';
+            document.getElementById('featured-zone').style.display = featuredCount > 0 ? 'block' : 'none';
         }
 
         function deletePost(id) {
-            if (!isAdmin) return;
+            if (!confirm("Delete post?")) return;
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             posts = posts.filter(p => p.id !== id);
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
@@ -248,17 +262,22 @@
         }
 
         function togglePin(id) {
-            if (!isAdmin) return;
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             const i = posts.findIndex(p => p.id === id);
-            if (i > -1) { posts[i].isPinned = !posts[i].isPinned; localStorage.setItem('yeepsPosts', JSON.stringify(posts)); loadPosts(); }
+            posts[i].isPinned = !posts[i].isPinned;
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
+            loadPosts();
         }
 
-        function attemptLogin() {
-            if (prompt("Admin Password:") === ADMIN_PASSWORD) {
-                isAdmin = true; alert("Admin Active!"); loadPosts();
+        // Initialize user name if it exists
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedName = localStorage.getItem('yeeps_username');
+            if (savedName) {
+                document.getElementById('usernameInput').value = savedName;
+                updateProfile();
             }
-        }
+            loadPosts();
+        });
     </script>
 </body>
 </html>
