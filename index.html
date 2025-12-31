@@ -1,34 +1,37 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Yeeps-Share | Home</title>
     <style>
-        :root { --yeeps-orange: #FF8C00; --yeeps-yellow: #FFD700; --yeeps-blue: #87CEEB; }
+        :root { 
+            --yeeps-orange: #FF8C00; 
+            --yeeps-yellow: #FFD700; 
+            --yeeps-blue: #87CEEB; 
+            --role-owner: #FFD700;
+            --role-dev: #5865F2;
+            --role-mod: #3BA55D;
+            --role-rat: #9ea1a4;
+        }
         body { font-family: 'Comic Sans MS', sans-serif; background: var(--yeeps-blue); display: flex; flex-direction: column; align-items: center; padding-top: 80px; margin: 0; }
         
+        /* Nav & Music */
         .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.8); padding: 10px; display: flex; justify-content: center; gap: 20px; z-index: 1000; }
         .top-nav a { color: white; text-decoration: none; font-weight: bold; }
+        .music-ctrl { position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 50px; border: 2px solid var(--yeeps-orange); z-index: 1000; }
 
-        /* POST STYLES */
-        .post { background: white; padding: 15px; margin-bottom: 20px; border-radius: 15px; width: 450px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+        /* Posts */
+        .post { background: white; padding: 15px; margin-bottom: 20px; border-radius: 15px; width: 450px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); position: relative; }
         .post.pinned { border: 4px solid var(--yeeps-yellow); background: #fffbea; }
-        
         .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-        .pfp-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--yeeps-orange); }
+        .pfp-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--yeeps-orange); cursor: pointer; }
         
-        /* ROLE COLORS */
-        .role-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; color: white; font-weight: bold; text-transform: uppercase; }
-        .role-dev { background: #5865F2; }
-        .role-mod { background: #3BA55D; }
-        .role-rat { background: #9ea1a4; }
-        .role-owner { background: var(--yeeps-yellow); color: #333; }
-
-        .input-box { background: white; padding: 20px; border-radius: 15px; width: 450px; margin-bottom: 20px; border: 3px solid var(--yeeps-orange); }
-        input, select { width: 90%; padding: 8px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; }
-        .btn-post { background: var(--yeeps-orange); color: white; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        /* Badges */
+        .badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; color: white; font-weight: bold; width: fit-content; }
         
-        .music-ctrl { position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 50px; border: 2px solid var(--yeeps-orange); }
+        /* Admin Box */
+        .admin-panel { background: #fff9e6; padding: 15px; border-radius: 15px; border: 3px solid var(--yeeps-yellow); margin-bottom: 20px; width: 450px; text-align: center; }
+        .btn-del { color: red; background: none; border: none; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -46,10 +49,18 @@
 
     <h1>🧱 Yeeps-Share</h1>
 
-    <div class="input-box">
-        <input type="text" id="postContent" placeholder="What's happening?">
-        <input type="text" id="postImg" placeholder="Optional Image URL">
-        <button class="btn-post" onclick="submitPost()">Post to Feed</button>
+    <div id="ownerTools" style="display:none;" class="admin-panel">
+        <strong>👑 Owner Controls</strong><br><br>
+        <input type="text" id="targetUser" placeholder="Username" style="padding:5px;">
+        <select id="roleSelect" style="padding:5px;">
+            <option value="rat">Lab Rat</option>
+            <option value="mod">Moderator</option>
+            <option value="dev">Yeeps Dev</option>
+            <option value="webdev">Website Dev</option>
+            <option value="reviewer">Reviewer</option>
+            <option value="none">Remove Role</option>
+        </select>
+        <button onclick="assignRole()">Apply Role</button>
     </div>
 
     <div id="featured-zone"></div>
@@ -59,74 +70,87 @@
         const ADMIN_NAME = "DatWeirdFNFfan";
         const currentUser = localStorage.getItem('current_yeep_user');
 
-        if(!currentUser) { window.location.href = "login.html"; } // Assuming you have a separate login file
+        // Redirect if not logged in
+        if (!currentUser) { window.location.href = "login.html"; }
 
         function toggleMusic() {
             const m = document.getElementById('bgMusic');
             m.paused ? (m.play(), document.getElementById('mBtn').innerText="🔊") : (m.pause(), document.getElementById('mBtn').innerText="🔇");
         }
 
-        function submitPost() {
-            const content = document.getElementById('postContent').value;
-            const img = document.getElementById('postImg').value;
-            if(!content) return;
+        function assignRole() {
+            const target = document.getElementById('targetUser').value.trim();
+            const role = document.getElementById('roleSelect').value;
+            let roles = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
+            if(role === "none") delete roles[target]; else roles[target] = role;
+            localStorage.setItem('yeeps_roles_db', JSON.stringify(roles));
+            alert("Role updated!"); location.reload();
+        }
 
+        function deletePost(postId) {
+            if(!confirm("Delete this post?")) return;
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const newPost = {
-                id: Date.now(),
-                username: currentUser,
-                content: content,
-                image: img,
-                isPinned: false
-            };
-
-            posts.push(newPost);
+            posts = posts.filter(p => p.id !== postId);
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
-            document.getElementById('postContent').value = "";
-            document.getElementById('postImg').value = "";
             location.reload();
         }
 
-        function renderRole(username) {
-            if(username === ADMIN_NAME) return `<span class="role-badge role-owner">OWNER</span>`;
-            const roles = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
-            const role = roles[username];
-            if(!role) return "";
-            return `<span class="role-badge role-${role}">${role}</span>`;
+        function toggleFeature(postId) {
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            const idx = posts.findIndex(p => p.id === postId);
+            posts[idx].isPinned = !posts[idx].isPinned;
+            posts[idx].pinnedAt = posts[idx].isPinned ? Date.now() : null;
+            
+            // Limit to 25
+            let pinned = posts.filter(p => p.isPinned).sort((a,b) => a.pinnedAt - b.pinnedAt);
+            if(pinned.length > 25) posts.find(p => p.id === pinned[0].id).isPinned = false;
+
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
+            location.reload();
         }
 
         function loadFeed() {
             const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+            const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
             const feed = document.getElementById('feed');
             const fFeed = document.getElementById('featured-zone');
+            
+            const isOwner = (currentUser === ADMIN_NAME);
 
             posts.slice().reverse().forEach(p => {
                 const userData = usersDB[p.username] || {};
                 const pfp = userData.pfp || "https://ui-avatars.com/api/?name=" + p.username;
-                
+                const role = (p.username === ADMIN_NAME) ? "owner" : (rolesDB[p.username] || "");
+
                 const div = document.createElement('div');
                 div.className = `post ${p.isPinned ? 'pinned' : ''}`;
+                
                 div.innerHTML = `
                     <div class="post-header">
                         <img src="${pfp}" class="pfp-img" onclick="window.location.href='pages/user-profile.html?u=${p.username}'">
-                        <div style="display:flex; flex-direction:column;">
-                            <strong onclick="window.location.href='pages/user-profile.html?u=${p.username}'" style="cursor:pointer;">${p.username}</strong>
-                            ${renderRole(p.username)}
+                        <div>
+                            <strong>${p.username}</strong>
+                            ${role ? `<div class="badge" style="background:var(--role-${role})">${role.toUpperCase()}</div>` : ''}
                         </div>
                     </div>
                     <p>${p.content}</p>
-                    ${p.image ? `<img src="${p.image}" style="width:100%; border-radius:10px; margin-top:10px;">` : ''}
-                    <div style="margin-top:10px; font-size:0.8rem;">
-                        <a href="pages/comments.html?postId=${p.id}" style="color:var(--yeeps-orange); text-decoration:none; font-weight:bold;">💬 Comments</a>
+                    <div style="display:flex; gap:15px; align-items:center;">
+                        <a href="pages/comments.html?postId=${p.id}" style="color:var(--yeeps-orange); font-weight:bold; text-decoration:none;">💬 Comments</a>
+                        
+                        ${(isOwner || p.username === currentUser) ? `<button class="btn-del" onclick="deletePost(${p.id})">Delete</button>` : ''}
+                        
+                        ${isOwner ? `<button onclick="toggleFeature(${p.id})" style="border:none; background:none; color:blue; cursor:pointer; font-size:0.8rem;">${p.isPinned ? 'Unfeature' : 'Feature'}</button>` : ''}
                     </div>
                 `;
                 p.isPinned ? fFeed.appendChild(div) : feed.appendChild(div);
             });
         }
 
-        function logout() { localStorage.removeItem('current_yeep_user'); location.reload(); }
+        function logout() { localStorage.removeItem('current_yeep_user'); window.location.href="login.html"; }
+
+        if(currentUser === ADMIN_NAME) document.getElementById('ownerTools').style.display = 'block';
         loadFeed();
     </script>
 </body>
-</html>
+</html>            
