@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Suspended | Yeeps-Share</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="background:#000; color:white;">
+    <div class="input-box" style="margin-top:100px; text-align:center; border-color:red; color: black;">
+        <h1 style="color:red;">⛔ ACCESS DENIED</h1>
+        <p id="banType">This account is currently suspended.</p>
+        <p id="timer" style="font-weight:bold; font-size:1.2rem;"></p>
+        <hr>
+        <button onclick="localStorage.removeItem('current_yeep_user'); location.href='login.html'">Log Out</button>
+    </div>
+
+    <script>
+        const user = localStorage.getItem('current_yeep_user');
+        const sDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
+        const s = sDB[user];
+
+        function update() {
+            if(!s || s.type === "unban" || s.type === "warn") { location.href="index.html"; return; }
+            
+            if(s.expires === "PERMANENT") {
+                document.getElementById('timer').innerText = "Duration: PERMANENT";
+            } else {
+                const diff = s.expires - Date.now();
+                if(diff <= 0) {
+                    delete sDB[user];
+                    localStorage.setItem('yeeps_status_db', JSON.stringify(sDB));
+                    location.href="index.html";
+                } else {
+                    document.getElementById('timer').innerText = "Expires in: " + Math.ceil(diff/1000) + "s";
+                }
+            }
+        }
+        setInterval(update, 1000);
+        update();
+    </script>
+</body>
+</html>
