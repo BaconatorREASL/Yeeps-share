@@ -1,189 +1,162 @@
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-<script>
-    // --- 1. SETUP FIREBASE ---
-    // PASTE THE CONFIG FROM THE FIREBASE CONSOLE BELOW THIS LINE:
-    // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDgsr50jIKTUyK6V4PcjjVpRKfvuG3sYd8",
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Yeeps-Share | Global Feed</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <script>
+        // --- 1. FIREBASE CONFIG (PASTE YOUR KEYS HERE) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgsr50jIKTUyK6V4PcjjVpRKfvuG3sYd8",
   authDomain: "yeeps-sharee.firebaseapp.com",
   projectId: "yeeps-sharee",
   storageBucket: "yeeps-sharee.firebasestorage.app",
   messagingSenderId: "1065169328522",
   appId: "1:1065169328522:web:6d3b18ba2c990e83f51073",
   measurementId: "G-Z2CDN9SFPQ"
-};
+        };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-    // --- 2. EXISTING SETUP ---
-    const ADMIN_NAME = "DatWeirdFNFfan";
-    const currentUser = localStorage.getItem('current_yeep_user');
-    
-    // We still keep Roles/Bans local for now to keep it simple for you
-    const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
-    const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
-    const statusDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
+        // --- 2. SECURITY & LOGIN CHECK ---
+        const ADMIN_NAME = "DatWeirdFNFfan";
+        const currentUser = localStorage.getItem('current_yeep_user');
+        const statusDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
 
-    // Security Check
-    if (currentUser && statusDB[currentUser]) {
-        const s = statusDB[currentUser];
-        if (s.type === "ban_perm" || (s.expires && s.expires > Date.now())) {
-            window.location.href = "ban.html";
+        if (currentUser && statusDB[currentUser]) {
+            const s = statusDB[currentUser];
+            if (s.type === "ban_perm" || (s.expires && s.expires > Date.now())) {
+                window.location.href = "ban.html";
+            }
         }
-    }
-    if (!currentUser) window.location.href = "login.html";
+        if (!currentUser) window.location.href = "login.html";
+    </script>
 
-    const myRoles = (currentUser === ADMIN_NAME) ? ["owner"] : (rolesDB[currentUser] || []);
-    const isOwner = currentUser === ADMIN_NAME;
-    const isStaff = myRoles.some(r => ["owner", "dev", "webmod", "gamemod"].includes(r));
-    const maxChars = 280;
+    <nav class="top-nav">
+        <a href="index.html">🏠 Home</a>
+        <a href="pages/profile-editor.html">⚙️ Settings</a>
+        <a href="#" onclick="localStorage.removeItem('current_yeep_user'); location.reload();" style="color:red;">Logout</a>
+    </nav>
 
-    if(isStaff) document.getElementById('staffPanel').style.display = "block";
-    if(isOwner) document.getElementById('ownerOnly').style.display = "block";
+    <div id="staffPanel" style="display:none;" class="admin-panel">
+        <h3 style="color:var(--yeeps-orange); margin-top:0;">🛠️ Staff Dashboard</h3>
+        <input type="text" id="modTarget" placeholder="Target Username">
+        <input type="text" id="modReason" placeholder="Reason for ban/warn">
+        <div style="display:flex; gap:10px;">
+            <select id="modAction">
+                <option value="warn">⚠️ Warn</option>
+                <option value="timeout_10">🕒 10m Timeout</option>
+                <option value="ban_perm">🚫 Permanent Ban</option>
+            </select>
+            <button onclick="applyMod()" style="background:red; color:white;">Execute</button>
+        </div>
+        <div id="ownerOnly" style="display:none; margin-top:10px; border-top:1px solid #444; padding-top:10px;">
+            <select id="roleSelect">
+                <option value="creator">Creator</option>
+                <option value="rat">Lab Rat</option>
+                <option value="star">Star</option>
+                <option value="webmod">Web Mod</option>
+                <option value="dev">Dev</option>
+            </select>
+            <button onclick="manageRole('add')" style="background:var(--yeeps-orange);">Add Role</button>
+        </div>
+    </div>
 
-    // --- 3. SUBMIT POST (CLOUDY VERSION) ---
-    function submitPost() {
-        const c = document.getElementById('postContent').value.trim();
-        const m = document.getElementById('mediaUrl').value.trim();
-        
-        if(!c && !m) return;
-        
-        // This sends data to Google's servers instead of your browser cache
-        db.collection("posts").add({
-            username: currentUser,
-            content: c,
-            media: m,
-            likes: [],
-            featured: false,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp() // Real server time
-        }).then(() => {
-            // Clear the box after posting
+    <div class="input-box">
+        <textarea id="postContent" placeholder="What's happening?"></textarea>
+        <input type="text" id="mediaUrl" placeholder="Image/YouTube Link">
+        <button id="postBtn" onclick="submitPost()" style="width:100%; background:var(--yeeps-orange); color:white; margin-top:10px;">POST TO SERVER</button>
+    </div>
+
+    <div id="featured-zone"></div>
+    <div id="feed"></div>
+
+    <script>
+        const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
+        const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+        const myRoles = (currentUser === ADMIN_NAME) ? ["owner"] : (rolesDB[currentUser] || []);
+        const isOwner = (currentUser === ADMIN_NAME);
+        const isStaff = myRoles.some(r => ["owner", "dev", "webmod"].includes(r));
+
+        if(isStaff) document.getElementById('staffPanel').style.display = "block";
+        if(isOwner) document.getElementById('ownerOnly').style.display = "block";
+
+        // POST TO CLOUD
+        async function submitPost() {
+            const content = document.getElementById('postContent').value.trim();
+            const media = document.getElementById('mediaUrl').value.trim();
+            if(!content && !media) return;
+
+            await db.collection("posts").add({
+                username: currentUser,
+                content: content,
+                media: media,
+                likes: [],
+                featured: false,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
             document.getElementById('postContent').value = "";
             document.getElementById('mediaUrl').value = "";
-        }).catch((error) => {
-            console.error("Error writing document: ", error);
-            alert("Error posting: " + error.message);
-        });
-    }
+        }
 
-    // --- 4. LOAD FEED (REAL TIME VERSION) ---
-    function loadFeed() {
-        const feed = document.getElementById('feed');
-        const featZone = document.getElementById('featured-zone');
-        
-        // This listens for updates instantly!
-        db.collection("posts").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-            feed.innerHTML = "";
-            featZone.innerHTML = "";
+        // LOAD FEED FROM CLOUD
+        function loadFeed() {
+            db.collection("posts").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+                const feed = document.getElementById('feed');
+                const feat = document.getElementById('featured-zone');
+                feed.innerHTML = ""; feat.innerHTML = "";
 
-            snapshot.forEach((doc) => {
-                const p = doc.data();
-                const postId = doc.id; // The unique ID from Firebase
+                snapshot.forEach((doc) => {
+                    const p = doc.data();
+                    const id = doc.id;
+                    const pfp = usersDB[p.username]?.pfp || "https://ui-avatars.com/api/?name=" + p.username;
+                    const liked = p.likes?.includes(currentUser);
 
-                let uRoles = (p.username === ADMIN_NAME) ? ["owner"] : (rolesDB[p.username] || []);
-                let mainColor = uRoles.length > 0 ? `role-${uRoles[0]}` : "";
-                let icons = uRoles.map(r => `<img src="Images/roles/${r}.png" class="inline-icon">`).join('');
-                let pfp = usersDB[p.username]?.pfp || "https://ui-avatars.com/api/?name=" + p.username;
-                let liked = p.likes && p.likes.includes(currentUser);
-
-                const div = document.createElement('div');
-                div.className = `post ${p.featured ? 'pinned' : ''}`;
-                
-                div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between;">
-                        <div style="display:flex; gap:10px;">
-                            <img src="${pfp}" class="pfp-img" onclick="location.href='pages/user-profile.html?u=${p.username}'">
+                    const div = document.createElement('div');
+                    div.className = `post ${p.featured ? 'pinned' : ''}`;
+                    div.innerHTML = `
+                        <div style="display:flex; justify-content:space-between;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <img src="${pfp}" class="pfp-img" onclick="location.href='pages/user-profile.html?u=${p.username}'">
+                                <strong onclick="location.href='pages/user-profile.html?u=${p.username}'" style="cursor:pointer;">${p.username}</strong>
+                            </div>
                             <div>
-                                <strong class="${mainColor}" onclick="location.href='pages/user-profile.html?u=${p.username}'">${p.username}</strong>
-                                ${icons}
+                                ${isOwner ? `<span onclick="toggleFeature('${id}', ${p.featured})" style="cursor:pointer;">⭐</span>` : ''}
+                                ${(isStaff || p.username === currentUser) ? `<span onclick="deletePost('${id}')" style="cursor:pointer; color:red; margin-left:10px;">🗑️</span>` : ''}
                             </div>
                         </div>
-                        <div>
-                            ${isOwner ? `<span onclick="toggleFeature('${postId}', ${p.featured})" style="cursor:pointer;">⭐</span>` : ''}
-                            ${(isStaff || p.username === currentUser) ? `<span onclick="deletePost('${postId}')" style="cursor:pointer; color:red;">🗑️</span>` : ''}
+                        <p>${p.content}</p>
+                        ${p.media ? `<img src="${p.media}" style="width:100%; border-radius:10px; margin-top:10px;" onerror="this.style.display='none'">` : ''}
+                        <div style="margin-top:10px;">
+                            <span onclick="likePost('${id}')" style="cursor:pointer; color:${liked ? 'orange':'gray'}">❤️ ${p.likes?.length || 0}</span>
                         </div>
-                    </div>
-                    <p style="white-space: pre-wrap;">${p.content}</p>
-                    ${renderMedia(p.media)}
-                    <div style="margin-top:10px;">
-                        <span onclick="likePost('${postId}')" style="cursor:pointer; color:${liked ? 'orange':'gray'}">❤️ ${p.likes ? p.likes.length : 0}</span>
-                    </div>
-                `;
-                
-                if(p.featured || (p.likes && p.likes.length >= 5)) {
-                    featZone.appendChild(div);
-                } else {
-                    feed.appendChild(div);
-                }
+                    `;
+                    p.featured ? feat.appendChild(div) : feed.appendChild(div);
+                });
             });
-        });
-    }
+        }
 
-    // --- 5. CLOUD ACTIONS ---
-    function likePost(id) {
-        const postRef = db.collection("posts").doc(id);
-        
-        // We have to use a "Transaction" to safely update likes on a server
-        db.runTransaction((transaction) => {
-            return transaction.get(postRef).then((postDoc) => {
-                if (!postDoc.exists) return;
-                let data = postDoc.data();
-                let likes = data.likes || [];
-                
-                if (likes.includes(currentUser)) {
-                    likes = likes.filter(u => u !== currentUser);
-                } else {
-                    likes.push(currentUser);
-                }
-                transaction.update(postRef, { likes: likes });
+        function likePost(id) {
+            const ref = db.collection("posts").doc(id);
+            db.runTransaction(async (t) => {
+                const doc = await t.get(ref);
+                let likes = doc.data().likes || [];
+                if(likes.includes(currentUser)) likes = likes.filter(u => u !== currentUser);
+                else likes.push(currentUser);
+                t.update(ref, { likes: likes });
             });
-        });
-    }
-
-    function deletePost(id) {
-        if(confirm("Delete this?")) {
-            db.collection("posts").doc(id).delete();
         }
-    }
 
-    function toggleFeature(id, currentStatus) {
-        if(!isOwner) return;
-        db.collection("posts").doc(id).update({
-            featured: !currentStatus
-        });
-    }
+        function deletePost(id) { if(confirm("Delete post?")) db.collection("posts").doc(id).delete(); }
+        function toggleFeature(id, stat) { db.collection("posts").doc(id).update({ featured: !stat }); }
 
-    // Helper for media (Same as before)
-    function renderMedia(url) {
-        if(!url) return "";
-        if(url.includes("youtube.com") || url.includes("youtu.be")) {
-            let id = url.includes("v=") ? url.split("v=")[1].split("&")[0] : url.split("/").pop();
-            return `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${id}" frameborder="0" style="border-radius:10px; margin-top:10px;"></iframe>`;
-        }
-        return `<img src="${url}" style="width:100%; border-radius:10px; margin-top:10px;" onerror="this.style.display='none'">`;
-    }
-    
-    // Start the feed!
-    loadFeed();
-    
-    // MODERATION (STILL LOCAL FOR NOW)
-    function applyMod() {
-        // ... (Keep your existing applyMod code here if you want local bans to still work)
-        alert("Note: Bans are currently only saving on your computer, not the server yet!");
-    }
-    function manageRole(type) {
-        // ... (Keep existing manageRole code)
-        alert("Note: Roles are currently only saving on your computer!");
-    }
-</script>
+        loadFeed();
+    </script>
+</body>
+</html>
