@@ -2,58 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Profile | Yeeps-Share</title>
+    <title>Settings | Yeeps-Share</title>
     <link rel="stylesheet" href="../style.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <nav class="top-nav">
-        <a href="../index.html">🏠 Home</a>
-        <a href="profile-editor.html">⚙️ Settings</a>
-    </nav>
+    <nav class="top-nav"><a href="../index.html">🏠 Home</a></nav>
 
-    <div class="admin-panel">
-        <h2 style="color:var(--yeeps-orange);">Profile Settings</h2>
-        <p>Username: <strong id="displayUser"></strong></p>
+    <div class="admin-panel" style="margin-top:20px;">
+        <h2>Edit Profile</h2>
+        <p>Logged in as: <b id="me"></b></p>
         
-        <label>Profile Picture URL</label>
-        <input type="text" id="pfpInput" placeholder="https://link-to-image.png">
+        <label>PFP Link:</label>
+        <input type="text" id="newPfp" placeholder="Paste image link here">
         
-        <label>Bio</label>
-        <textarea id="bioInput" placeholder="Tell us about yourself..."></textarea>
+        <label>Your Bio:</label>
+        <textarea id="newBio" placeholder="Tell us about yourself..."></textarea>
         
-        <button onclick="saveProfile()" style="width:100%; background:var(--yeeps-orange); color:white; margin-top:10px;">SAVE PROFILE</button>
+        <button id="saveBtn" style="width:100%; background:var(--yeeps-orange); color:white;">SAVE CHANGES</button>
     </div>
 
     <script>
-        // PASTE YOUR FIREBASE CONFIG HERE
-        const firebaseConfig = { /* ... your config ... */ };
+        const firebaseConfig = { /* YOUR KEYS */ };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const currentUser = localStorage.getItem('current_yeep_user');
-        document.getElementById('displayUser').innerText = currentUser;
+        const user = localStorage.getItem('current_yeep_user');
+        document.getElementById('me').innerText = user;
 
-        // Load existing data
-        db.collection("users").doc(currentUser).get().then((doc) => {
-            if (doc.exists) {
-                document.getElementById('pfpInput').value = doc.data().pfp || "";
-                document.getElementById('bioInput').value = doc.data().bio || "";
+        // Auto-load current data
+        db.collection("users").doc(user).get().then(doc => {
+            if(doc.exists) {
+                document.getElementById('newPfp').value = doc.data().pfp || "";
+                document.getElementById('newBio').value = doc.data().bio || "";
             }
         });
 
-        async function saveProfile() {
-            const pfp = document.getElementById('pfpInput').value.trim();
-            const bio = document.getElementById('bioInput').value.trim();
-            
-            await db.collection("users").doc(currentUser).set({
-                pfp: pfp,
-                bio: bio
-            }, { merge: true });
-            
-            alert("Profile Updated!");
-            window.location.href = "../index.html";
-        }
+        // Fixed Save Button Logic
+        document.getElementById('saveBtn').onclick = function() {
+            const p = document.getElementById('newPfp').value.trim();
+            const b = document.getElementById('newBio').value.trim();
+
+            db.collection("users").doc(user).set({
+                pfp: p,
+                bio: b
+            }, { merge: true }).then(() => {
+                alert("Saved!");
+                window.location.href = "../index.html";
+            }).catch(err => alert("Error: " + err));
+        };
     </script>
 </body>
 </html>
