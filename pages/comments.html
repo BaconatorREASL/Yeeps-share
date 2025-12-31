@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Comments | Yeeps-Share</title>
+    <style>
+        body { font-family: sans-serif; background: #87CEEB; padding: 50px; display: flex; flex-direction: column; align-items: center; }
+        .container { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 500px; }
+        .comment { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .back-btn { margin-bottom: 20px; cursor: pointer; color: white; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-btn">⬅ Back to Feed</a>
+    <div class="container">
+        <h3>Comments</h3>
+        <div id="commentList"></div>
+        <hr>
+        <textarea id="commText" placeholder="Write a comment..." style="width:95%; height:60px;"></textarea><br>
+        <button onclick="postComment()" style="background:#FF8C00; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">Post Comment</button>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const postId = params.get('postId');
+        const user = localStorage.getItem('current_yeep_user');
+
+        function loadComments() {
+            const allComments = JSON.parse(localStorage.getItem('yeeps_comments')) || {};
+            const comments = allComments[postId] || [];
+            const list = document.getElementById('commentList');
+            list.innerHTML = comments.length ? '' : 'No comments yet.';
+            
+            comments.forEach(c => {
+                list.innerHTML += `<div class="comment"><strong>${c.user}:</strong> ${c.text}</div>`;
+            });
+        }
+
+        function postComment() {
+            if(!user) return alert("Log in first!");
+            const text = document.getElementById('commText').value;
+            if(!text) return;
+
+            let allComments = JSON.parse(localStorage.getItem('yeeps_comments')) || {};
+            if(!allComments[postId]) allComments[postId] = [];
+            
+            allComments[postId].push({ user: user, text: text });
+            localStorage.setItem('yeeps_comments', JSON.stringify(allComments));
+            document.getElementById('commText').value = '';
+            loadComments();
+        }
+
+        loadComments();
+    </script>
+</body>
+</html>
