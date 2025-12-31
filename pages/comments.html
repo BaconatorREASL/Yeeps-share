@@ -6,35 +6,71 @@
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-    <nav class="top-nav"><a href="../index.html">🏠 Home</a></nav>
-    <div class="input-box" style="margin-top:20px;">
+    <nav class="top-nav">
+        <a href="../index.html">🏠 Back to Feed</a>
+    </nav>
+
+    <div id="originalPost" style="margin-top:20px;"></div>
+
+    <div class="input-box">
         <h3>Comments</h3>
-        <div id="list"></div>
+        <div id="commentList" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;"></div>
         <hr>
-        <textarea id="msg" placeholder="Type a comment..."></textarea>
-        <button onclick="send()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px;">Reply</button>
+        <textarea id="commentText" placeholder="Write a reply..." style="width:95%; height:60px;"></textarea>
+        <button onclick="postComment()" style="width:100%; background:var(--yeeps-orange); color:white; margin-top:10px;">Post Reply</button>
     </div>
+
     <script>
-        const pid = new URLSearchParams(window.location.search).get('postId');
-        const user = localStorage.getItem('current_yeep_user');
-        function load() {
-            const all = JSON.parse(localStorage.getItem('yeeps_comments')) || {};
-            const coms = all[pid] || [];
-            const list = document.getElementById('list');
-            list.innerHTML = coms.length ? "" : "Be the first to comment!";
-            coms.forEach(c => { list.innerHTML += `<div style="padding:10px 0; border-bottom:1px solid #eee;"><b>${c.user}:</b> ${c.text}</div>`; });
+        const params = new URLSearchParams(window.location.search);
+        const postId = params.get('postId');
+        const currentUser = localStorage.getItem('current_yeep_user');
+
+        function loadComments() {
+            // Load Original Post
+            const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            const post = posts.find(p => p.id == postId);
+            if(post) {
+                document.getElementById('originalPost').innerHTML = `
+                    <div class="post">
+                        <strong>${post.username}</strong>
+                        <p>${post.content}</p>
+                    </div>`;
+            }
+
+            // Load Comments
+            const allComments = JSON.parse(localStorage.getItem('yeeps_comments')) || {};
+            const comments = allComments[postId] || [];
+            const list = document.getElementById('commentList');
+            list.innerHTML = comments.length === 0 ? "<p>No comments yet. Be the first!</p>" : "";
+
+            comments.forEach(c => {
+                list.innerHTML += `
+                    <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
+                        <strong style="color:var(--yeeps-orange);">${c.user}:</strong>
+                        <span>${c.text}</span>
+                    </div>`;
+            });
         }
-        function send() {
-            const txt = document.getElementById('msg').value;
-            if(!txt) return;
-            let all = JSON.parse(localStorage.getItem('yeeps_comments')) || {};
-            if(!all[pid]) all[pid] = [];
-            all[pid].push({user: user, text: txt});
-            localStorage.setItem('yeeps_comments', JSON.stringify(all));
-            document.getElementById('msg').value = "";
-            load();
+
+        function postComment() {
+            const text = document.getElementById('commentText').value.trim();
+            if(!text) return;
+
+            let allComments = JSON.parse(localStorage.getItem('yeeps_comments')) || {};
+            if(!allComments[postId]) allComments[postId] = [];
+
+            allComments[postId].push({
+                user: currentUser,
+                text: text,
+                time: Date.now()
+            });
+
+            localStorage.setItem('yeeps_comments', JSON.stringify(allComments));
+            document.getElementById('commentText').value = "";
+            loadComments();
         }
-        load();
+
+        loadComments();
     </script>
 </body>
 </html>
