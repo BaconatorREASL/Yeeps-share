@@ -2,47 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Yeeps-Share | Home</title>
+    <title>Yeeps-Share | Dark</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <nav class="top-nav">
         <img src="Images/Logo/Logo.png" class="nav-logo" onclick="location.href='index.html'">
-        <a href="index.html">🏠 Home</a>
-        <a href="pages/profile-editor.html">⚙️ Profile</a>
-        <a href="#" onclick="logout()" style="color:red;">Logout</a>
+        <a href="index.html">Home</a>
+        <a href="pages/profile-editor.html">Settings</a>
+        <a href="#" onclick="localStorage.removeItem('current_yeep_user'); location.reload();" style="color:red;">Logout</a>
     </nav>
 
     <div id="staffPanel" style="display:none;" class="admin-panel">
-        <strong style="color:var(--yeeps-orange);">🛠️ Staff Dashboard</strong><br><br>
-        <div style="display:flex; gap:10px;">
-            <div style="flex:1; border-right:1px solid #ddd; padding-right:10px;">
-                <small>Roles</small>
-                <input type="text" id="targetUser" placeholder="Username">
-                <select id="roleSelect">
-                    <option value="creator">Creator</option>
-                    <option value="rat">Lab Rat</option>
-                    <option value="star">Star</option>
-                    <option value="starprog">Star Program</option>
-                    <option value="gamemod">Game Mod</option>
-                    <option value="discordmod">Discord Mod</option>
-                    <option value="webmod">Web Mod</option>
-                    <option value="dev">Dev</option>
-                </select>
-                <button onclick="manageRole('add')">Add</button>
-                <button onclick="manageRole('remove')">Rem</button>
-            </div>
-            <div style="flex:1; padding-left:10px;">
-                <small>Bans</small>
-                <input type="text" id="modTarget" placeholder="Username">
-                <button onclick="applyBan()" style="background:red; color:white; width:100%;">Perm Ban</button>
-            </div>
-        </div>
+        <h3 style="color:var(--yeeps-orange); margin-top:0;">Staff Tools</h3>
+        <input type="text" id="targetUser" placeholder="Username">
+        <select id="roleSelect">
+            <option value="creator">Creator</option>
+            <option value="dev">Dev</option>
+            <option value="webmod">Web Mod</option>
+            <option value="gamemod">Game Mod</option>
+            <option value="rat">Lab Rat</option>
+        </select>
+        <button onclick="manageRole('add')" style="background:var(--yeeps-orange);">Add Role</button>
+        <button onclick="manageRole('remove')" style="background:#444; color:white;">Remove</button>
     </div>
 
     <div class="input-box">
-        <input type="text" id="postContent" placeholder="What's the news?">
-        <button onclick="submitPost()" style="width:100%; background:var(--yeeps-orange); color:white; margin-top:10px;">Post</button>
+        <textarea id="postContent" placeholder="Post something..."></textarea>
+        <button onclick="submitPost()" style="width:100%; background:var(--yeeps-orange); color:white; font-weight:bold;">POST</button>
     </div>
 
     <div id="featured-zone"></div>
@@ -51,30 +38,23 @@
     <script>
         const ADMIN_NAME = "DatWeirdFNFfan";
         const currentUser = localStorage.getItem('current_yeep_user');
-        if (!currentUser) window.location.href = "login.html";
+        if(!currentUser) window.location.href = "login.html";
 
         const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
         const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
-        const statusDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
-
-        if (statusDB[currentUser]) window.location.href = "ban.html";
 
         const myRoles = (currentUser === ADMIN_NAME) ? ["owner"] : (rolesDB[currentUser] || []);
-        const isOwner = (currentUser === ADMIN_NAME);
-        const isStaff = myRoles.includes("webmod") || myRoles.includes("dev") || isOwner;
-
-        if (isStaff) document.getElementById('staffPanel').style.display = 'block';
+        if(myRoles.includes("owner") || myRoles.includes("dev") || myRoles.includes("webmod")) {
+            document.getElementById('staffPanel').style.display = 'block';
+        }
 
         function manageRole(action) {
-            if (!isOwner) return;
             const target = document.getElementById('targetUser').value.trim();
             const role = document.getElementById('roleSelect').value;
             if(!target) return;
             if(!Array.isArray(rolesDB[target])) rolesDB[target] = [];
-            
-            if(action === 'add' && !rolesDB[target].includes(role)) rolesDB[target].push(role);
-            if(action === 'remove') rolesDB[target] = rolesDB[target].filter(r => r !== role);
-            
+            if(action === 'add') rolesDB[target].push(role);
+            else rolesDB[target] = rolesDB[target].filter(r => r !== role);
             localStorage.setItem('yeeps_roles_db', JSON.stringify(rolesDB));
             location.reload();
         }
@@ -83,47 +63,44 @@
             const content = document.getElementById('postContent').value.trim();
             if(!content) return;
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            posts.push({ id: Date.now(), username: currentUser, content: content, pinned: false });
+            posts.push({ id: Date.now(), username: currentUser, content: content });
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
             location.reload();
         }
 
         function loadFeed() {
             const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const feedDiv = document.getElementById('feed');
-            const featureDiv = document.getElementById('featured-zone');
             const roleNames = { owner: "Owner", creator: "Creator", rat: "Lab Rat", star: "Star", starprog: "Star Program", gamemod: "Game Mod", discordmod: "Discord Mod", webmod: "Web Mod", dev: "Dev" };
-
+            
             posts.slice().reverse().forEach(p => {
                 let uRoles = (p.username === ADMIN_NAME) ? ["owner"] : (rolesDB[p.username] || []);
-                if (!Array.isArray(uRoles)) uRoles = [uRoles];
+                if(!Array.isArray(uRoles)) uRoles = [uRoles];
 
                 let mainColorClass = uRoles.length > 0 ? `role-${uRoles[0]}` : "";
                 let icons = uRoles.map(r => `<img src="Images/roles/${r}.png" class="inline-icon" onerror="this.style.display='none'">`).join('');
                 let pfp = usersDB[p.username]?.pfp || "https://ui-avatars.com/api/?name=" + p.username;
 
                 const div = document.createElement('div');
-                div.className = `post ${p.pinned ? 'pinned' : ''}`;
+                div.className = "post";
                 div.innerHTML = `
-                    <div class="post-header">
+                    <div style="display:flex; align-items:center; gap:12px;">
                         <img src="${pfp}" class="pfp-img" onclick="location.href='pages/user-profile.html?u=${p.username}'">
                         <div>
-                            <div class="username-container">
-                                <strong class="${mainColorClass}" onclick="location.href='pages/user-profile.html?u=${p.username}'" style="cursor:pointer;">${p.username}</strong>
+                            <div style="display:flex; align-items:center;">
+                                <strong class="${mainColorClass}" style="cursor:pointer;" onclick="location.href='pages/user-profile.html?u=${p.username}'">${p.username}</strong>
                                 ${icons}
                             </div>
                             <div style="display:flex; gap:5px; margin-top:2px;">
-                                ${uRoles.map(r => `<span class="badge" style="background:var(--role-${r})">${roleNames[r]}</span>`).join('')}
+                                ${uRoles.map(r => `<span class="badge" style="background:var(--color-${r})">${roleNames[r]}</span>`).join('')}
                             </div>
                         </div>
                     </div>
-                    <p style="margin:15px 0;">${p.content}</p>
-                    <div style="font-size:0.85rem;"><a href="pages/comments.html?postId=${p.id}">💬 Comments</a></div>
+                    <p style="margin-top:15px; line-height:1.5;">${p.content}</p>
+                    <div style="margin-top:10px;"><a href="pages/comments.html?postId=${p.id}" style="color:var(--yeeps-orange); font-size:0.8rem; text-decoration:none;">💬 View Comments</a></div>
                 `;
-                p.pinned ? featureDiv.appendChild(div) : feedDiv.appendChild(div);
+                document.getElementById('feed').appendChild(div);
             });
         }
-        function logout() { localStorage.removeItem('current_yeep_user'); location.reload(); }
         loadFeed();
     </script>
 </body>
