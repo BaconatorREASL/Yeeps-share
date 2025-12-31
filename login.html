@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Yeeps-Share</title>
+    <style>
+        :root { --yeeps-orange: #FF8C00; --yeeps-blue: #87CEEB; }
+        body { 
+            font-family: 'Comic Sans MS', sans-serif; 
+            background: var(--yeeps-blue); 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; margin: 0; 
+        }
+        .login-card { 
+            background: white; padding: 40px; border-radius: 25px; 
+            box-shadow: 0 10px 0 rgba(0,0,0,0.1); border: 5px solid var(--yeeps-orange);
+            width: 320px; text-align: center;
+        }
+        input { 
+            width: 90%; padding: 12px; margin-bottom: 15px; 
+            border-radius: 10px; border: 2px solid #ddd; font-family: inherit;
+        }
+        .btn-login { 
+            background: var(--yeeps-orange); color: white; border: none; 
+            padding: 15px; width: 100%; border-radius: 10px; 
+            font-weight: bold; cursor: pointer; font-size: 1rem;
+        }
+        h2 { color: var(--yeeps-orange); margin-top: 0; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>Yeeps-Share</h2>
+        <p>Login or Register</p>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button class="btn-login" onclick="attemptLogin()">Enter Feed</button>
+    </div>
+
+    <script>
+        const ADMIN_NAME = "DatWeirdFNFfan";
+        const ADMIN_PASS = "yeep123"; // Make sure this is your password!
+
+        function attemptLogin() {
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+
+            if (!u || !p) { alert("Please enter both!"); return; }
+
+            let usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+
+            // Admin Logic
+            if (u === ADMIN_NAME) {
+                if (p !== ADMIN_PASS) {
+                    alert("Wrong Admin Password!");
+                    return;
+                }
+            } else {
+                // Regular User Logic (Register if new, check if exists)
+                if (usersDB[u]) {
+                    if (usersDB[u].password !== p) {
+                        alert("Incorrect password for this user!");
+                        return;
+                    }
+                } else {
+                    // Register new user automatically
+                    usersDB[u] = { password: p, pfp: "", bio: "New Yeep on the block!" };
+                    localStorage.setItem('yeeps_users_db', JSON.stringify(usersDB));
+                }
+            }
+
+            localStorage.setItem('current_yeep_user', u);
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>
