@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="../style.css">
+    <title>Profile</title>
 </head>
 <body>
     <nav class="top-nav">
-        <a href="../index.html">🏠 Home</a>
+        <a href="../index.html">Back to Feed</a>
     </nav>
 
-    <div id="profileContent" style="margin-top:50px;"></div>
-    <div id="userPosts" style="width:480px; margin:auto;"></div>
+    <div id="profileContent" style="margin-top:20px;"></div>
+    <div id="userPosts" style="width:480px;"></div>
 
     <script>
         const u = new URLSearchParams(window.location.search).get('u');
@@ -20,13 +21,13 @@
         
         const data = usersDB[u] || {};
         let uRoles = (u === "DatWeirdFNFfan") ? ["owner"] : (rolesDB[u] || []);
-        if (!Array.isArray(uRoles)) uRoles = [uRoles];
+        if(!Array.isArray(uRoles)) uRoles = [uRoles];
 
         const roleNames = { owner: "Owner", creator: "Creator", rat: "Lab Rat", star: "Star", starprog: "Star Program", gamemod: "Game Mod", discordmod: "Discord Mod", webmod: "Web Mod", dev: "Dev" };
 
         let roleHTML = uRoles.map(r => `
             <div class="role-card">
-                <img src="../Images/roles/${r}.png" style="width:20px;" onerror="this.style.display='none'">
+                <img src="../Images/roles/${r}.png" style="width:20px; height:20px; object-fit:contain;" onerror="this.style.display='none'">
                 <span class="role-${r}" style="font-weight:bold;">${roleNames[r]}</span>
             </div>
         `).join('');
@@ -35,16 +36,14 @@
             <div class="admin-panel" style="text-align:center; margin:auto; margin-bottom:20px;">
                 <img src="${data.pfp || 'https://ui-avatars.com/api/?name='+u}" class="pfp-large">
                 <h1 class="${uRoles.length > 0 ? 'role-'+uRoles[0] : ''}">${u}</h1>
-                <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
-                    ${roleHTML}
-                </div>
-                <p style="color:#555; font-style:italic;">${data.bio || "No bio set."}</p>
+                <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:5px;">${roleHTML}</div>
+                <p style="color:var(--text-dim); margin-top:15px;">${data.bio || "No bio set."}</p>
             </div>
         `;
 
-        const feed = document.getElementById('userPosts');
+        const postList = document.getElementById('userPosts');
         posts.filter(p => p.username === u).reverse().forEach(p => {
-            feed.innerHTML += `<div class="post"><p>${p.content}</p></div>`;
+            postList.innerHTML += `<div class="post"><p>${p.content}</p></div>`;
         });
     </script>
 </body>
