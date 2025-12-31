@@ -2,41 +2,73 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Suspended | Yeeps-Share</title>
+    <title>Access Restricted | Yeeps-Share</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .ban-container {
+            background: #1e1e1e;
+            padding: 40px;
+            border-radius: 20px;
+            border: 4px solid #ff4d4d;
+            text-align: center;
+            max-width: 500px;
+            margin: 100px auto;
+            color: white;
+            box-shadow: 0 0 30px rgba(255, 77, 77, 0.3);
+        }
+        .ban-icon { font-size: 80px; margin-bottom: 20px; }
+        .reason-box {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #ff4d4d;
+            text-align: left;
+        }
+    </style>
 </head>
-<body style="background:#000; color:white;">
-    <div class="input-box" style="margin-top:100px; text-align:center; border-color:red; color: black;">
-        <h1 style="color:red;">⛔ ACCESS DENIED</h1>
-        <p id="banType">This account is currently suspended.</p>
-        <p id="timer" style="font-weight:bold; font-size:1.2rem;"></p>
-        <hr>
-        <button onclick="localStorage.removeItem('current_yeep_user'); location.href='login.html'">Log Out</button>
+<body>
+    <div class="ban-container">
+        <div class="ban-icon">🚫</div>
+        <h1>Access Restricted</h1>
+        <p id="banMessage">Your account has been moderated for violating community guidelines.</p>
+        
+        <div class="reason-box">
+            <strong>Reason:</strong>
+            <p id="banReason">Loading reason...</p>
+        </div>
+
+        <p id="expiryTime" style="color: #b0b0b0;"></p>
+        
+        <button onclick="localStorage.removeItem('current_yeep_user'); location.href='login.html'" style="background:#444; color:white; margin-top:20px;">Logout</button>
     </div>
 
     <script>
-        const user = localStorage.getItem('current_yeep_user');
-        const sDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
-        const s = sDB[user];
-
-        function update() {
-            if(!s || s.type === "unban" || s.type === "warn") { location.href="index.html"; return; }
+        const currentUser = localStorage.getItem('current_yeep_user');
+        const statusDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
+        
+        if (currentUser && statusDB[currentUser]) {
+            const status = statusDB[currentUser];
             
-            if(s.expires === "PERMANENT") {
-                document.getElementById('timer').innerText = "Duration: PERMANENT";
-            } else {
-                const diff = s.expires - Date.now();
-                if(diff <= 0) {
-                    delete sDB[user];
-                    localStorage.setItem('yeeps_status_db', JSON.stringify(sDB));
-                    location.href="index.html";
-                } else {
-                    document.getElementById('timer').innerText = "Expires in: " + Math.ceil(diff/1000) + "s";
+            document.getElementById('banReason').innerText = status.reason || "No reason specified.";
+            
+            if (status.type === "ban_perm") {
+                document.getElementById('expiryTime').innerText = "Duration: Permanent";
+            } else if (status.type.includes("timeout")) {
+                const timeLeft = Math.ceil((status.expires - Date.now()) / 60000);
+                document.getElementById('expiryTime').innerText = `Time remaining: ${timeLeft} minute(s)`;
+                
+                // If timeout is actually over, let them go back
+                if (timeLeft <= 0) {
+                    delete statusDB[currentUser];
+                    localStorage.setItem('yeeps_status_db', JSON.stringify(statusDB));
+                    location.href = "index.html";
                 }
             }
+        } else {
+            // If they aren't actually banned, send them home
+            location.href = "index.html";
         }
-        setInterval(update, 1000);
-        update();
     </script>
 </body>
 </html>
