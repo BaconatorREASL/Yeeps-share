@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,14 +20,14 @@
                 <small>Roles</small>
                 <input type="text" id="targetUser" placeholder="Username">
                 <select id="roleSelect">
-                    <option value="creator">Content Creator</option>
+                    <option value="creator">Creator</option>
                     <option value="rat">Lab Rat</option>
-                    <option value="star">Star Creator</option>
+                    <option value="star">Star</option>
                     <option value="starprog">Star Program</option>
                     <option value="gamemod">Game Mod</option>
                     <option value="discordmod">Discord Mod</option>
                     <option value="webmod">Web Mod</option>
-                    <option value="dev">Game Dev</option>
+                    <option value="dev">Dev</option>
                 </select>
                 <button onclick="manageRole('add')">Add</button>
                 <button onclick="manageRole('remove')">Rem</button>
@@ -36,17 +35,13 @@
             <div style="flex:1; padding-left:10px;">
                 <small>Bans</small>
                 <input type="text" id="modTarget" placeholder="Username">
-                <select id="modDuration">
-                    <option value="60000">1 Min</option>
-                    <option value="PERM">Perm</option>
-                </select>
-                <button onclick="applyBan()" style="background:red; color:white;">Ban</button>
+                <button onclick="applyBan()" style="background:red; color:white; width:100%;">Perm Ban</button>
             </div>
         </div>
     </div>
 
     <div class="input-box">
-        <input type="text" id="postContent" placeholder="What's happening?">
+        <input type="text" id="postContent" placeholder="What's the news?">
         <button onclick="submitPost()" style="width:100%; background:var(--yeeps-orange); color:white; margin-top:10px;">Post</button>
     </div>
 
@@ -56,21 +51,14 @@
     <script>
         const ADMIN_NAME = "DatWeirdFNFfan";
         const currentUser = localStorage.getItem('current_yeep_user');
-        
         if (!currentUser) window.location.href = "login.html";
 
-        // Global DBs
-        let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
         const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
-        const statusDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
         const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+        const statusDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
 
-        // Ban Check
-        if (statusDB[currentUser] && statusDB[currentUser].type !== "warn") {
-             window.location.href = "ban.html";
-        }
+        if (statusDB[currentUser]) window.location.href = "ban.html";
 
-        // Permissions
         const myRoles = (currentUser === ADMIN_NAME) ? ["owner"] : (rolesDB[currentUser] || []);
         const isOwner = (currentUser === ADMIN_NAME);
         const isStaff = myRoles.includes("webmod") || myRoles.includes("dev") || isOwner;
@@ -82,116 +70,61 @@
             const target = document.getElementById('targetUser').value.trim();
             const role = document.getElementById('roleSelect').value;
             if(!target) return;
-            if(!rolesDB[target]) rolesDB[target] = [];
+            if(!Array.isArray(rolesDB[target])) rolesDB[target] = [];
+            
             if(action === 'add' && !rolesDB[target].includes(role)) rolesDB[target].push(role);
             if(action === 'remove') rolesDB[target] = rolesDB[target].filter(r => r !== role);
+            
             localStorage.setItem('yeeps_roles_db', JSON.stringify(rolesDB));
-            location.reload();
-        }
-
-        function applyBan() {
-            const target = document.getElementById('modTarget').value.trim();
-            const dur = document.getElementById('modDuration').value;
-            if (target === ADMIN_NAME) return;
-            let expiry = dur === "PERM" ? "PERMANENT" : Date.now() + parseInt(dur);
-            statusDB[target] = { type: "ban", expires: expiry, bannedAt: Date.now() };
-            localStorage.setItem('yeeps_status_db', JSON.stringify(statusDB));
             location.reload();
         }
 
         function submitPost() {
             const content = document.getElementById('postContent').value.trim();
             if(!content) return;
-            
-            // Re-fetch posts to ensure we don't overwrite others' data
-            let currentPosts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const newPost = {
-                id: Date.now() + Math.random(), // Unique ID
-                username: currentUser,
-                content: content,
-                pinned: false
-            };
-            
-            currentPosts.push(newPost);
-            localStorage.setItem('yeepsPosts', JSON.stringify(currentPosts));
-            
-            document.getElementById('postContent').value = ""; // Clear box
-            loadFeed(); // Refresh without reloading page
-        }
-
-        function deletePost(e, id) {
-            e.stopPropagation();
-            if(!confirm("Delete this post?")) return;
-            let currentPosts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const filtered = currentPosts.filter(x => x.id !== id);
-            localStorage.setItem('yeepsPosts', JSON.stringify(filtered));
-            loadFeed();
-        }
-
-        function togglePin(e, id) {
-            e.stopPropagation();
-            if(!isOwner) return;
-            let currentPosts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            let idx = currentPosts.findIndex(x => x.id === id);
-            if(idx !== -1) {
-                currentPosts[idx].pinned = !currentPosts[idx].pinned;
-                localStorage.setItem('yeepsPosts', JSON.stringify(currentPosts));
-                loadFeed();
-            }
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            posts.push({ id: Date.now(), username: currentUser, content: content, pinned: false });
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
+            location.reload();
         }
 
         function loadFeed() {
-            // Re-fetch data
-            const allPosts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             const feedDiv = document.getElementById('feed');
             const featureDiv = document.getElementById('featured-zone');
-            
-            // Clear existing content safely
-            feedDiv.innerHTML = "";
-            featureDiv.innerHTML = "";
+            const roleNames = { owner: "Owner", creator: "Creator", rat: "Lab Rat", star: "Star", starprog: "Star Program", gamemod: "Game Mod", discordmod: "Discord Mod", webmod: "Web Mod", dev: "Dev" };
 
-            const roleNames = { owner: "Owner", creator: "Content Creator", rat: "Lab Rat", star: "Star Creator", starprog: "Star Program", gamemod: "Game Mod", discordmod: "Discord Mod", webmod: "Web Mod", dev: "Game Dev" };
-
-            // Sort posts: Newest first
-            const sortedPosts = [...allPosts].reverse();
-
-            sortedPosts.forEach(p => {
+            posts.slice().reverse().forEach(p => {
                 let uRoles = (p.username === ADMIN_NAME) ? ["owner"] : (rolesDB[p.username] || []);
+                if (!Array.isArray(uRoles)) uRoles = [uRoles];
+
+                let mainColorClass = uRoles.length > 0 ? `role-${uRoles[0]}` : "";
+                let icons = uRoles.map(r => `<img src="Images/roles/${r}.png" class="inline-icon" onerror="this.style.display='none'">`).join('');
                 let pfp = usersDB[p.username]?.pfp || "https://ui-avatars.com/api/?name=" + p.username;
 
-                let badgeHTML = uRoles.map(r => `
-                    <div class="role-container">
-                        <img src="Images/roles/${r}.png" class="role-icon" onerror="this.style.display='none'">
-                        <div class="badge role-${r}" style="background:var(--role-${r})">${roleNames[r]}</div>
-                    </div>`).join('');
-
-                const postEl = document.createElement('div');
-                postEl.className = `post ${p.pinned ? 'pinned' : ''}`;
-                postEl.innerHTML = `
+                const div = document.createElement('div');
+                div.className = `post ${p.pinned ? 'pinned' : ''}`;
+                div.innerHTML = `
                     <div class="post-header">
-                        <img src="${pfp}" class="pfp-img" onclick="location.href='pages/user-profile.html?u=${p.username}'" style="cursor:pointer;">
+                        <img src="${pfp}" class="pfp-img" onclick="location.href='pages/user-profile.html?u=${p.username}'">
                         <div>
-                            <strong onclick="location.href='pages/user-profile.html?u=${p.username}'" style="cursor:pointer;">${p.username}</strong>
-                            <div style="display:flex; flex-wrap:wrap; gap:5px;">${badgeHTML}</div>
+                            <div class="username-container">
+                                <strong class="${mainColorClass}" onclick="location.href='pages/user-profile.html?u=${p.username}'" style="cursor:pointer;">${p.username}</strong>
+                                ${icons}
+                            </div>
+                            <div style="display:flex; gap:5px; margin-top:2px;">
+                                ${uRoles.map(r => `<span class="badge" style="background:var(--role-${r})">${roleNames[r]}</span>`).join('')}
+                            </div>
                         </div>
                     </div>
-                    <p style="margin:15px 0; word-wrap: break-word;">${p.content}</p>
-                    <div style="display:flex; gap:15px; font-size:0.85rem;">
-                        <a href="pages/comments.html?postId=${p.id}" style="color:var(--yeeps-orange); text-decoration:none; font-weight:bold;">💬 Comments</a>
-                        ${(isStaff || p.username === currentUser) ? `<span onclick="deletePost(event, ${p.id})" style="color:red; cursor:pointer; font-weight:bold;">Delete</span>` : ''}
-                        ${isOwner ? `<span onclick="togglePin(event, ${p.id})" style="color:blue; cursor:pointer; font-weight:bold;">${p.pinned ? 'Unpin' : 'Pin'}</span>` : ''}
-                    </div>
+                    <p style="margin:15px 0;">${p.content}</p>
+                    <div style="font-size:0.85rem;"><a href="pages/comments.html?postId=${p.id}">💬 Comments</a></div>
                 `;
-                
-                if(p.pinned) featureDiv.appendChild(postEl);
-                else feedDiv.appendChild(postEl);
+                p.pinned ? featureDiv.appendChild(div) : feedDiv.appendChild(div);
             });
         }
-
         function logout() { localStorage.removeItem('current_yeep_user'); location.reload(); }
-        
-        // Final Fix: Initial Load
-        window.onload = loadFeed;
+        loadFeed();
     </script>
 </body>
 </html>
