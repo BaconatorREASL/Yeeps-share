@@ -17,7 +17,7 @@
         <strong style="color:var(--yeeps-orange);">🛠️ Staff Dashboard</strong><br><br>
         <div style="display:flex; gap:10px;">
             <div style="flex:1; border-right:1px solid #ddd; padding-right:10px;">
-                <small>Manage Roles</small>
+                <small>Roles</small>
                 <input type="text" id="targetUser" placeholder="Username">
                 <select id="roleSelect">
                     <option value="creator">Content Creator</option>
@@ -30,26 +30,23 @@
                     <option value="dev">Game Dev</option>
                 </select>
                 <button onclick="manageRole('add')">Add</button>
-                <button onclick="manageRole('remove')">Remove</button>
-                <button onclick="manageRole('clear')" style="background:red; color:white; margin-top:5px; width:100%;">Wipe All Roles</button>
+                <button onclick="manageRole('remove')">Rem</button>
             </div>
             <div style="flex:1; padding-left:10px;">
-                <small>Banning System</small>
+                <small>Bans</small>
                 <input type="text" id="modTarget" placeholder="Username">
                 <select id="modDuration">
-                    <option value="60000">1 Minute</option>
-                    <option value="600000">10 Minutes</option>
-                    <option value="PERM">Permanent</option>
+                    <option value="60000">1 Min</option>
+                    <option value="PERM">Perm</option>
                 </select>
-                <button onclick="applyBan()" style="background:red; color:white; width:100%;">Ban User</button>
+                <button onclick="applyBan()" style="background:red; color:white;">Ban</button>
             </div>
         </div>
     </div>
 
     <div class="input-box">
         <input type="text" id="postContent" placeholder="What's happening?">
-        <input type="text" id="postImg" placeholder="Image URL (Optional)">
-        <button onclick="submitPost()" style="width:100%; background:var(--yeeps-orange); color:white;">Post to Feed</button>
+        <button onclick="submitPost()" style="width:100%; background:var(--yeeps-orange); color:white; margin-top:10px;">Post</button>
     </div>
 
     <div id="featured-zone"></div>
@@ -60,66 +57,53 @@
         const currentUser = localStorage.getItem('current_yeep_user');
         if (!currentUser) window.location.href = "login.html";
 
-        // Databases
         const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
         const statusDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
         const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
 
-        // Security Check
         if (statusDB[currentUser] && statusDB[currentUser].type !== "warn") window.location.href = "ban.html";
 
-        const myRoleList = (currentUser === ADMIN_NAME) ? ["owner"] : (rolesDB[currentUser] || []);
+        const myRoles = (currentUser === ADMIN_NAME) ? ["owner"] : (rolesDB[currentUser] || []);
         const isOwner = (currentUser === ADMIN_NAME);
-        const isWebMod = myRoleList.includes("webmod") || myRoleList.includes("dev") || isOwner;
+        const isStaff = myRoles.includes("webmod") || myRoles.includes("dev") || isOwner;
 
-        if (isWebMod) document.getElementById('staffPanel').style.display = 'block';
+        if (isStaff) document.getElementById('staffPanel').style.display = 'block';
 
-        // --- ROLE LOGIC (Supports Multiple Roles) ---
         function manageRole(action) {
-            if (!isOwner) return alert("Owner only!");
+            if (!isOwner) return;
             const target = document.getElementById('targetUser').value.trim();
             const role = document.getElementById('roleSelect').value;
             if(!target) return;
-
             if(!rolesDB[target]) rolesDB[target] = [];
-            
-            if(action === 'add') {
-                if(!rolesDB[target].includes(role)) rolesDB[target].push(role);
-            } else if(action === 'remove') {
-                rolesDB[target] = rolesDB[target].filter(r => r !== role);
-            } else {
-                delete rolesDB[target];
-            }
-            
+            if(action === 'add' && !rolesDB[target].includes(role)) rolesDB[target].push(role);
+            if(action === 'remove') rolesDB[target] = rolesDB[target].filter(r => r !== role);
             localStorage.setItem('yeeps_roles_db', JSON.stringify(rolesDB));
             location.reload();
         }
 
-        // --- BAN LOGIC ---
         function applyBan() {
             const target = document.getElementById('modTarget').value.trim();
             const dur = document.getElementById('modDuration').value;
-            if (target === ADMIN_NAME) return alert("Cannot ban Owner!");
-
+            if (target === ADMIN_NAME) return;
             let expiry = dur === "PERM" ? "PERMANENT" : Date.now() + parseInt(dur);
-            statusDB[target] = { type: dur === "PERM" ? "ban_perm" : "timeout", expires: expiry, bannedAt: Date.now() };
-            
-            if(dur === "PERM") {
-                let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-                localStorage.setItem('yeepsPosts', JSON.stringify(posts.filter(p => p.username !== target)));
-            }
+            statusDB[target] = { type: "ban", expires: expiry, bannedAt: Date.now() };
             localStorage.setItem('yeeps_status_db', JSON.stringify(statusDB));
             location.reload();
         }
 
-        // --- FEED LOGIC ---
         function submitPost() {
             const content = document.getElementById('postContent').value.trim();
-            const img = document.getElementById('postImg').value.trim();
             if(!content) return;
             let p = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            p.push({ id: Date.now(), username: currentUser, content: content, image: img, pinned: false });
+            p.push({ id: Date.now(), username: currentUser, content: content, pinned: false });
             localStorage.setItem('yeepsPosts', JSON.stringify(p));
+            location.reload();
+        }
+
+        function deletePost(id) {
+            if(!confirm("Delete this post?")) return;
+            let p = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            localStorage.setItem('yeepsPosts', JSON.stringify(p.filter(x => x.id !== id)));
             location.reload();
         }
 
@@ -132,22 +116,15 @@
             location.reload();
         }
 
-        function deletePost(id) {
-            let p = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            localStorage.setItem('yeepsPosts', JSON.stringify(p.filter(x => x.id !== id)));
-            location.reload();
-        }
-
         function loadFeed() {
             const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             const roleNames = { owner: "Owner", creator: "Content Creator", rat: "Lab Rat", star: "Star Creator", starprog: "Star Program", gamemod: "Game Mod", discordmod: "Discord Mod", webmod: "Web Mod", dev: "Game Dev" };
 
             posts.slice().reverse().forEach(p => {
-                let userRoles = (p.username === ADMIN_NAME) ? ["owner"] : (rolesDB[p.username] || []);
-                let check = userRoles.some(r => ["owner", "dev", "star", "gamemod"].includes(r)) ? '✔' : '';
+                let uRoles = (p.username === ADMIN_NAME) ? ["owner"] : (rolesDB[p.username] || []);
                 let pfp = usersDB[p.username]?.pfp || "https://ui-avatars.com/api/?name=" + p.username;
 
-                let badgeHTML = userRoles.map(r => `
+                let badges = uRoles.map(r => `
                     <div class="role-container">
                         <img src="Images/roles/${r}.png" class="role-icon" onerror="this.style.display='none'">
                         <div class="badge role-${r}" style="background:var(--role-${r})">${roleNames[r]}</div>
@@ -159,19 +136,17 @@
                     <div class="post-header">
                         <img src="${pfp}" class="pfp-img" onclick="location.href='pages/user-profile.html?u=${p.username}'">
                         <div>
-                            <strong onclick="location.href='pages/user-profile.html?u=${p.username}'" style="cursor:pointer;">${p.username} <span class="checkmark">${check}</span></strong>
-                            <div style="display:flex; flex-wrap:wrap; gap:5px;">${badgeHTML}</div>
+                            <strong onclick="location.href='pages/user-profile.html?u=${p.username}'" style="cursor:pointer;">${p.username}</strong>
+                            <div style="display:flex; flex-wrap:wrap; gap:5px;">${badges}</div>
                         </div>
                     </div>
-                    <p>${p.content}</p>
-                    ${p.image ? `<img src="${p.image}" style="width:100%; border-radius:10px; margin-top:10px;">` : ''}
-                    <div style="display:flex; gap:15px; margin-top:10px; font-size:0.85rem; font-weight:bold;">
-                        <a href="pages/comments.html?postId=${p.id}" style="color:var(--yeeps-orange); text-decoration:none;">💬 Comments</a>
-                        ${(isWebMod || p.username === currentUser) ? `<span onclick="deletePost(${p.id})" style="color:red; cursor:pointer;">Delete</span>` : ''}
-                        ${isOwner ? `<span onclick="togglePin(${p.id})" style="color:blue; cursor:pointer;">${p.pinned ? 'Unpin' : 'Pin'}</span>` : ''}
+                    <p style="margin:15px 0;">${p.content}</p>
+                    <div style="display:flex; gap:15px; font-size:0.85rem;">
+                        <a href="pages/comments.html?postId=${p.id}" style="color:var(--yeeps-orange); text-decoration:none; font-weight:bold;">💬 Comments</a>
+                        ${(isStaff || p.username === currentUser) ? `<span onclick="deletePost(${p.id})" style="color:red; cursor:pointer; font-weight:bold;">Delete</span>` : ''}
+                        ${isOwner ? `<span onclick="togglePin(${p.id})" style="color:blue; cursor:pointer; font-weight:bold;">${p.pinned ? 'Unpin' : 'Pin'}</span>` : ''}
                     </div>
                 `;
-                
                 if(p.pinned) document.getElementById('featured-zone').appendChild(div);
                 else document.getElementById('feed').appendChild(div);
             });
