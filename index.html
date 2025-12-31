@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+            <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -20,22 +20,45 @@
 
     <h1>🧱 Yeeps-Share</h1>
 
-    <div id="modPanel" style="display:none;" class="admin-panel">
-        <strong id="staffTitle">🛡️ Staff Tools</strong><br><br>
-        <input type="text" id="modTarget" placeholder="Username to Suspend" style="width:150px;">
-        <select id="modAction">
-            <option value="warn">Warn User</option>
-            <option value="timeout">10 Minute Timeout</option>
-            <option value="ban_perm">Permanent Ban</option>
-            <option value="unban">Lift Punishment</option>
-        </select>
-        <button onclick="applyModeration()" style="cursor:pointer; padding:5px;">Execute</button>
+    <div id="staffPanel" style="display:none;" class="admin-panel">
+        <strong style="color:var(--yeeps-orange);">🛠️ Staff Dashboard</strong><br><br>
+        
+        <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
+            <div style="border:1px solid #ddd; padding:10px; border-radius:10px;">
+                <small>Set Role</small><br>
+                <input type="text" id="targetUser" placeholder="Username" style="width:100px;">
+                <select id="roleSelect">
+                    <option value="creator">Content Creator</option>
+                    <option value="rat">Lab Rat</option>
+                    <option value="star">Star Creator</option>
+                    <option value="starprog">Star Program</option>
+                    <option value="gamemod">Game Mod</option>
+                    <option value="discordmod">Discord Mod</option>
+                    <option value="webmod">Web Mod</option>
+                    <option value="dev">Game Dev</option>
+                    <option value="none">Remove Role</option>
+                </select>
+                <button onclick="assignRole()">Apply Role</button>
+            </div>
+
+            <div id="banSection" style="border:1px solid #ddd; padding:10px; border-radius:10px;">
+                <small>Moderation</small><br>
+                <input type="text" id="modTarget" placeholder="Username" style="width:100px;">
+                <select id="modAction">
+                    <option value="warn">Warn</option>
+                    <option value="timeout">10 Min Timeout</option>
+                    <option value="ban_perm">Perm Ban</option>
+                    <option value="unban">Lift All</option>
+                </select>
+                <button onclick="applyModeration()" style="background:#ff4d4d; color:white;">Execute</button>
+            </div>
+        </div>
     </div>
 
     <div class="input-box">
-        <input type="text" id="postContent" placeholder="What's happening?">
+        <input type="text" id="postContent" placeholder="What's the news?">
         <input type="text" id="postImg" placeholder="Image URL (Optional)">
-        <button onclick="submitPost()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">Post</button>
+        <button onclick="submitPost()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">Post to Feed</button>
     </div>
 
     <div id="featured-zone"></div>
@@ -45,92 +68,104 @@
         const ADMIN_NAME = "DatWeirdFNFfan";
         const currentUser = localStorage.getItem('current_yeep_user');
 
-        // 1. LOGIN & BAN CHECK
+        // Security & Ban Check
         if (!currentUser) window.location.href = "login.html";
         const statusDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
-        const myStatus = statusDB[currentUser];
-        if (myStatus && myStatus.type !== "unban" && myStatus.type !== "warn") window.location.href = "ban.html";
-        if (myStatus && myStatus.type === "warn") alert("⚠️ WARNING: Your account has been flagged for a rules violation.");
+        if (statusDB[currentUser] && ["timeout", "ban_perm"].includes(statusDB[currentUser].type)) {
+            window.location.href = "ban.html";
+        }
+
+        const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
+        const myRole = (currentUser === ADMIN_NAME) ? "owner" : (rolesDB[currentUser] || "");
+        
+        // Show panel for WebMod, Dev, and Owner
+        const staffPower = { "webmod": 1, "dev": 2, "owner": 3 };
+        if (staffPower[myRole]) {
+            document.getElementById('staffPanel').style.display = 'block';
+        }
 
         function toggleMusic() {
             const m = document.getElementById('bgMusic');
             m.paused ? (m.play(), document.getElementById('mBtn').innerText="🔊") : (m.pause(), document.getElementById('mBtn').innerText="🔇");
         }
 
-        // 2. MODERATION LOGIC (EXCLUDES GAME MODS)
-        const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
-        const myRole = currentUser === ADMIN_NAME ? "owner" : (rolesDB[currentUser] || "");
-        
-        // Permission Hierarchy (Game Mod is excluded from staff powers)
-        const staffPower = { "webmod": 1, "dev": 2, "owner": 3 };
-        if (staffPower[myRole]) document.getElementById('modPanel').style.display = 'block';
+        function assignRole() {
+            if (staffPower[myRole] < 3) { alert("Only the Owner can manage roles!"); return; }
+            const target = document.getElementById('targetUser').value.trim();
+            const role = document.getElementById('roleSelect').value;
+            if(!target) return;
+            if(role === "none") delete rolesDB[target]; else rolesDB[target] = role;
+            localStorage.setItem('yeeps_roles_db', JSON.stringify(rolesDB));
+            location.reload();
+        }
 
         function applyModeration() {
             const target = document.getElementById('modTarget').value.trim();
             const action = document.getElementById('modAction').value;
-            const targetRole = target === ADMIN_NAME ? "owner" : (rolesDB[target] || "");
-
-            const myLvl = staffPower[myRole] || 0;
-            const targetLvl = staffPower[targetRole] || 0;
-
-            if (targetLvl >= myLvl || target === currentUser) {
-                alert("You cannot moderate someone with equal or higher rank!");
-                return;
+            const targetRole = (target === ADMIN_NAME) ? "owner" : (rolesDB[target] || "");
+            
+            if ((staffPower[targetRole] || 0) >= staffPower[myRole] || target === currentUser) {
+                alert("Cannot moderate higher or equal ranks!"); return;
             }
 
             let expiry = 0;
             if (action === "timeout") expiry = Date.now() + (10 * 60 * 1000);
             if (action === "ban_perm") expiry = "PERMANENT";
-
+            
             statusDB[target] = { type: action, expires: expiry };
             localStorage.setItem('yeeps_status_db', JSON.stringify(statusDB));
-            alert(`Action ${action} executed on ${target}`);
+            alert("Moderation applied."); location.reload();
+        }
+
+        function submitPost() {
+            const content = document.getElementById('postContent').value.trim();
+            const img = document.getElementById('postImg').value.trim();
+            if(!content) return;
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            posts.push({ id: Date.now(), username: currentUser, content, image: img, isPinned: false });
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
             location.reload();
         }
 
-        function reportPost(id, user) {
-            let reports = JSON.parse(localStorage.getItem('yeeps_reports')) || [];
-            reports.push({ postId: id, reported: user, reporter: currentUser });
-            localStorage.setItem('yeeps_reports', JSON.stringify(reports));
-            alert("Post reported to Web Mods.");
-        }
-
-        // 3. FEED LOGIC
         function loadFeed() {
             const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+            const feed = document.getElementById('feed');
+            const fFeed = document.getElementById('featured-zone');
             
+            feed.innerHTML = ""; fFeed.innerHTML = "";
+
+            const roleNames = { owner: "Owner", creator: "Content Creator", rat: "Lab Rat", star: "Star Creator", starprog: "Star Program", gamemod: "Game Mod", discordmod: "Discord Mod", webmod: "Web Mod", dev: "Game Dev" };
+
             posts.slice().reverse().forEach(p => {
+                let rKey = (p.username === ADMIN_NAME) ? "owner" : (rolesDB[p.username] || "");
+                const check = ["owner", "dev", "star", "gamemod"].includes(rKey) ? '✔' : '';
                 const pfp = usersDB[p.username]?.pfp || "https://ui-avatars.com/api/?name=" + p.username;
-                let rKey = p.username === ADMIN_NAME ? "owner" : (rolesDB[p.username] || "");
-                
+
                 const div = document.createElement('div');
                 div.className = `post ${p.isPinned ? 'pinned' : ''}`;
                 div.innerHTML = `
                     <div class="post-header">
                         <img src="${pfp}" class="pfp-img" onclick="location.href='pages/user-profile.html?u=${p.username}'">
                         <div>
-                            <strong>${p.username}</strong>
-                            ${rKey ? `<div class="badge role-${rKey}">${rKey}</div>` : ''}
+                            <strong>${p.username} <span class="checkmark">${check}</span></strong>
+                            ${rKey ? `<div class="badge role-${rKey}">${roleNames[rKey]}</div>` : ''}
                         </div>
                     </div>
                     <p>${p.content}</p>
-                    <div style="display:flex; gap:10px;">
-                        <a href="pages/comments.html?postId=${p.id}" style="font-size:0.8rem;">💬 Comments</a>
-                        <span onclick="reportPost(${p.id}, '${p.username}')" style="cursor:pointer; color:gray; font-size:0.8rem;">🚩 Report</span>
-                        ${(myLvl >= 1 || p.username === currentUser) ? `<span onclick="deletePost(${p.id})" style="color:red; cursor:pointer; font-size:0.8rem;">Delete</span>` : ''}
+                    ${p.image ? `<img src="${p.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ''}
+                    <div style="display:flex; gap:10px; font-size:0.8rem;">
+                        <a href="pages/comments.html?postId=${p.id}">💬 Comments</a>
+                        ${(staffPower[myRole] || p.username === currentUser) ? `<span onclick="deletePost(${p.id})" style="color:red; cursor:pointer;">Delete</span>` : ''}
                     </div>
                 `;
-                p.isPinned ? document.getElementById('featured-zone').appendChild(div) : document.getElementById('feed').appendChild(div);
+                p.isPinned ? fFeed.appendChild(div) : feed.appendChild(div);
             });
         }
 
-        function submitPost() {
-            const content = document.getElementById('postContent').value;
-            if(!content) return;
+        function deletePost(id) {
             let p = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            p.push({ id: Date.now(), username: currentUser, content: content });
-            localStorage.setItem('yeepsPosts', JSON.stringify(p));
+            localStorage.setItem('yeepsPosts', JSON.stringify(p.filter(x => x.id !== id)));
             location.reload();
         }
 
@@ -138,4 +173,4 @@
         loadFeed();
     </script>
 </body>
-</html>>
+</html>
