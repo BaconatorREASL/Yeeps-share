@@ -1,21 +1,21 @@
 /* --- Global Theme --- */
-:root { 
-    --yeeps-orange: #FF8C00; 
-    --yeeps-yellow: #FFD700; 
-    --yeeps-blue: #87CEEB; 
-    
-    /* Role Colors */
-    --role-owner: #36454F;      /* Gray */
-    --role-creator: #CED11D;    /* Orange */
-    --role-rat: #0AD100;        /* Green */
-    --role-star: #F2FF00;       /* Yellow */
-    --role-starprog: #951DD1;   /* Purple */
-    --role-gamemod: #008FFC;    /* Blue */
-    --role-discordmod: #3453BA; /* Dark Blue */
-    --role-webmod: #4ADDF7;     /* Cyan */
-    --role-dev: #F3FF70;        /* Light Yellow */
+:root {
+    --yeeps-orange: #FF8C00;
+    --role-owner: #36454F;
+    --role-creator: #CED11D;
+    --role-rat: #0AD100;
+    --role-star: #F2FF00;
+    --role-starprog: #951DD1;
+    --role-gamemod: #008FFC;
+    --role-discordmod: #3453BA;
+    --role-webmod: #4ADDF7;
+    --role-dev: #F3FF70;
 }
 
+/* Light background roles get dark text */
+.role-star, .role-dev, .role-creator, .role-webmod { color: #000 !important; }
+
+/* The rest is the same as your current CSS */
 body { 
     font-family: 'Comic Sans MS', sans-serif; 
     background: var(--yeeps-blue); 
