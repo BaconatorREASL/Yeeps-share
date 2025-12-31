@@ -1,4 +1,4 @@
-            <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,27 +6,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <nav class="top-nav">
+        <img src="Images/Logo/Logo.png" class="nav-logo" onclick="location.href='index.html'">
         <a href="index.html">🏠 Home</a>
-        <a href="pages/profile-editor.html">⚙️ My Profile</a>
-        <a href="#" onclick="logout()" style="color:#ff4d4d;">Logout</a>
+        <a href="pages/profile-editor.html">⚙️ Profile</a>
+        <a href="#" onclick="logout()" style="color:red;">Logout</a>
     </nav>
-
-    <div class="music-ctrl">
-        <button onclick="toggleMusic()" id="mBtn">🔇</button>
-        <audio id="bgMusic" loop><source src="music/SuburbTheme.ogg" type="audio/ogg"></audio>
-    </div>
-
-    <h1>🧱 Yeeps-Share</h1>
 
     <div id="staffPanel" style="display:none;" class="admin-panel">
         <strong style="color:var(--yeeps-orange);">🛠️ Staff Dashboard</strong><br><br>
-        
-        <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
-            <div style="border:1px solid #ddd; padding:10px; border-radius:10px;">
-                <small>Set Role</small><br>
-                <input type="text" id="targetUser" placeholder="Username" style="width:100px;">
+        <div style="display:flex; gap:10px;">
+            <div style="flex:1; border-right:1px solid #ddd; padding-right:10px;">
+                <small>Manage Roles</small>
+                <input type="text" id="targetUser" placeholder="Username">
                 <select id="roleSelect">
                     <option value="creator">Content Creator</option>
                     <option value="rat">Lab Rat</option>
@@ -36,139 +28,108 @@
                     <option value="discordmod">Discord Mod</option>
                     <option value="webmod">Web Mod</option>
                     <option value="dev">Game Dev</option>
-                    <option value="none">Remove Role</option>
                 </select>
-                <button onclick="assignRole()">Apply Role</button>
+                <button onclick="manageRole('add')">Give</button>
+                <button onclick="manageRole('remove')" style="background:#555; color:white;">Remove</button>
+                <button onclick="manageRole('clear')" style="background:red; color:white; margin-top:5px; width:100%;">Clear All</button>
             </div>
-
-            <div id="banSection" style="border:1px solid #ddd; padding:10px; border-radius:10px;">
-                <small>Moderation</small><br>
-                <input type="text" id="modTarget" placeholder="Username" style="width:100px;">
-                <select id="modAction">
-                    <option value="warn">Warn</option>
-                    <option value="timeout">10 Min Timeout</option>
-                    <option value="ban_perm">Perm Ban</option>
-                    <option value="unban">Lift All</option>
+            <div style="flex:1; padding-left:10px;">
+                <small>Banning System</small>
+                <input type="text" id="modTarget" placeholder="Username">
+                <select id="modDuration">
+                    <option value="60000">1 Minute (Test)</option>
+                    <option value="600000">10 Minutes</option>
+                    <option value="2592000000">1 Month</option>
+                    <option value="31536000000">1 Year</option>
+                    <option value="PERM">Permanent</option>
                 </select>
-                <button onclick="applyModeration()" style="background:#ff4d4d; color:white;">Execute</button>
+                <button onclick="applyBan()" style="background:red; color:white; width:100%;">Execute Ban</button>
             </div>
         </div>
     </div>
 
     <div class="input-box">
-        <input type="text" id="postContent" placeholder="What's the news?">
-        <input type="text" id="postImg" placeholder="Image URL (Optional)">
-        <button onclick="submitPost()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">Post to Feed</button>
+        <input type="text" id="postContent" placeholder="Post something...">
+        <button onclick="submitPost()" style="width:100%; background:var(--yeeps-orange); color:white;">Post</button>
     </div>
 
-    <div id="featured-zone"></div>
     <div id="feed"></div>
 
     <script>
         const ADMIN_NAME = "DatWeirdFNFfan";
         const currentUser = localStorage.getItem('current_yeep_user');
-
-        // Security & Ban Check
         if (!currentUser) window.location.href = "login.html";
+
+        // Ban Check
         const statusDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
-        if (statusDB[currentUser] && ["timeout", "ban_perm"].includes(statusDB[currentUser].type)) {
-            window.location.href = "ban.html";
-        }
+        if (statusDB[currentUser] && statusDB[currentUser].type !== "warn") window.location.href = "ban.html";
 
         const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
         const myRole = (currentUser === ADMIN_NAME) ? "owner" : (rolesDB[currentUser] || "");
-        
-        // Show panel for WebMod, Dev, and Owner
         const staffPower = { "webmod": 1, "dev": 2, "owner": 3 };
-        if (staffPower[myRole]) {
-            document.getElementById('staffPanel').style.display = 'block';
-        }
+        if (staffPower[myRole]) document.getElementById('staffPanel').style.display = 'block';
 
-        function toggleMusic() {
-            const m = document.getElementById('bgMusic');
-            m.paused ? (m.play(), document.getElementById('mBtn').innerText="🔊") : (m.pause(), document.getElementById('mBtn').innerText="🔇");
-        }
-
-        function assignRole() {
-            if (staffPower[myRole] < 3) { alert("Only the Owner can manage roles!"); return; }
+        function manageRole(type) {
+            if (myRole !== "owner") return alert("Owner Only!");
             const target = document.getElementById('targetUser').value.trim();
-            const role = document.getElementById('roleSelect').value;
             if(!target) return;
-            if(role === "none") delete rolesDB[target]; else rolesDB[target] = role;
+            if(type === 'add') rolesDB[target] = document.getElementById('roleSelect').value;
+            else if(type === 'remove') delete rolesDB[target];
+            else if(type === 'clear') delete rolesDB[target];
             localStorage.setItem('yeeps_roles_db', JSON.stringify(rolesDB));
             location.reload();
         }
 
-        function applyModeration() {
+        function applyBan() {
             const target = document.getElementById('modTarget').value.trim();
-            const action = document.getElementById('modAction').value;
+            const dur = document.getElementById('modDuration').value;
             const targetRole = (target === ADMIN_NAME) ? "owner" : (rolesDB[target] || "");
-            
-            if ((staffPower[targetRole] || 0) >= staffPower[myRole] || target === currentUser) {
-                alert("Cannot moderate higher or equal ranks!"); return;
-            }
+            if ((staffPower[targetRole] || 0) >= staffPower[myRole]) return alert("Cannot ban higher ranks!");
 
-            let expiry = 0;
-            if (action === "timeout") expiry = Date.now() + (10 * 60 * 1000);
-            if (action === "ban_perm") expiry = "PERMANENT";
+            let expiry = dur === "PERM" ? "PERMANENT" : Date.now() + parseInt(dur);
+            statusDB[target] = { type: dur === "PERM" ? "ban_perm" : "timeout", expires: expiry, bannedAt: Date.now() };
             
-            statusDB[target] = { type: action, expires: expiry };
+            if(dur === "PERM") {
+                let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+                localStorage.setItem('yeepsPosts', JSON.stringify(posts.filter(p => p.username !== target)));
+            }
             localStorage.setItem('yeeps_status_db', JSON.stringify(statusDB));
-            alert("Moderation applied."); location.reload();
+            location.reload();
         }
 
         function submitPost() {
             const content = document.getElementById('postContent').value.trim();
-            const img = document.getElementById('postImg').value.trim();
             if(!content) return;
-            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            posts.push({ id: Date.now(), username: currentUser, content, image: img, isPinned: false });
-            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
+            let p = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            p.push({ id: Date.now(), username: currentUser, content: content });
+            localStorage.setItem('yeepsPosts', JSON.stringify(p));
             location.reload();
         }
 
         function loadFeed() {
             const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
-            const feed = document.getElementById('feed');
-            const fFeed = document.getElementById('featured-zone');
-            
-            feed.innerHTML = ""; fFeed.innerHTML = "";
-
+            const list = document.getElementById('feed');
             const roleNames = { owner: "Owner", creator: "Content Creator", rat: "Lab Rat", star: "Star Creator", starprog: "Star Program", gamemod: "Game Mod", discordmod: "Discord Mod", webmod: "Web Mod", dev: "Game Dev" };
 
             posts.slice().reverse().forEach(p => {
-                let rKey = (p.username === ADMIN_NAME) ? "owner" : (rolesDB[p.username] || "");
-                const check = ["owner", "dev", "star", "gamemod"].includes(rKey) ? '✔' : '';
-                const pfp = usersDB[p.username]?.pfp || "https://ui-avatars.com/api/?name=" + p.username;
-
-                const div = document.createElement('div');
-                div.className = `post ${p.isPinned ? 'pinned' : ''}`;
-                div.innerHTML = `
-                    <div class="post-header">
-                        <img src="${pfp}" class="pfp-img" onclick="location.href='pages/user-profile.html?u=${p.username}'">
-                        <div>
-                            <strong>${p.username} <span class="checkmark">${check}</span></strong>
-                            ${rKey ? `<div class="badge role-${rKey}">${roleNames[rKey]}</div>` : ''}
+                let r = (p.username === ADMIN_NAME) ? "owner" : (rolesDB[p.username] || "");
+                let check = ["owner", "dev", "star", "gamemod"].includes(r) ? '✔' : '';
+                list.innerHTML += `
+                    <div class="post">
+                        <div class="post-header">
+                            <img src="https://ui-avatars.com/api/?name=${p.username}" style="width:40px; border-radius:50%;">
+                            <div>
+                                <strong>${p.username} <span class="checkmark">${check}</span></strong>
+                                <div class="role-container">
+                                    ${r ? `<img src="Images/roles/${r}.png" class="role-icon" onerror="this.style.display='none'">` : ''}
+                                    ${r ? `<div class="badge role-${r}" style="background:var(--role-${r})">${roleNames[r]}</div>` : ''}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <p>${p.content}</p>
-                    ${p.image ? `<img src="${p.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ''}
-                    <div style="display:flex; gap:10px; font-size:0.8rem;">
-                        <a href="pages/comments.html?postId=${p.id}">💬 Comments</a>
-                        ${(staffPower[myRole] || p.username === currentUser) ? `<span onclick="deletePost(${p.id})" style="color:red; cursor:pointer;">Delete</span>` : ''}
-                    </div>
-                `;
-                p.isPinned ? fFeed.appendChild(div) : feed.appendChild(div);
+                        <p>${p.content}</p>
+                    </div>`;
             });
         }
-
-        function deletePost(id) {
-            let p = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            localStorage.setItem('yeepsPosts', JSON.stringify(p.filter(x => x.id !== id)));
-            location.reload();
-        }
-
         function logout() { localStorage.removeItem('current_yeep_user'); location.reload(); }
         loadFeed();
     </script>
