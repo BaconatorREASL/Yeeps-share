@@ -4,19 +4,27 @@
 <script>
     // --- 1. SETUP FIREBASE ---
     // PASTE THE CONFIG FROM THE FIREBASE CONSOLE BELOW THIS LINE:
-    const firebaseConfig = {
-        apiKey: "AIzaSy...",
-        authDomain: "yeeps-share.firebaseapp.com",
-        projectId: "yeeps-share",
-        storageBucket: "yeeps-share.appspot.com",
-        messagingSenderId: "12345...",
-        appId: "1:12345..."
-    };
-    // (Make sure to keep the closing }; above!)
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-    // Initialize the connection
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDgsr50jIKTUyK6V4PcjjVpRKfvuG3sYd8",
+  authDomain: "yeeps-sharee.firebaseapp.com",
+  projectId: "yeeps-sharee",
+  storageBucket: "yeeps-sharee.firebasestorage.app",
+  messagingSenderId: "1065169328522",
+  appId: "1:1065169328522:web:6d3b18ba2c990e83f51073",
+  measurementId: "G-Z2CDN9SFPQ"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
     // --- 2. EXISTING SETUP ---
     const ADMIN_NAME = "DatWeirdFNFfan";
