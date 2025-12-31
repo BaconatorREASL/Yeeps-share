@@ -4,26 +4,54 @@
     <meta charset="UTF-8">
     <title>Edit Profile | Yeeps-Share</title>
     <link rel="stylesheet" href="../style.css">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <nav class="top-nav"><a href="../index.html">🏠 Home</a></nav>
-    <div class="input-box" style="margin-top:40px; text-align:center;">
-        <h2>Settings</h2>
-        <input type="text" id="newPfp" placeholder="PFP Link">
-        <textarea id="newBio" placeholder="About you..."></textarea>
-        <button onclick="save()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px;">Save</button>
+    <nav class="top-nav">
+        <a href="../index.html">🏠 Home</a>
+        <a href="profile-editor.html">⚙️ Settings</a>
+    </nav>
+
+    <div class="admin-panel">
+        <h2 style="color:var(--yeeps-orange);">Profile Settings</h2>
+        <p>Username: <strong id="displayUser"></strong></p>
+        
+        <label>Profile Picture URL</label>
+        <input type="text" id="pfpInput" placeholder="https://link-to-image.png">
+        
+        <label>Bio</label>
+        <textarea id="bioInput" placeholder="Tell us about yourself..."></textarea>
+        
+        <button onclick="saveProfile()" style="width:100%; background:var(--yeeps-orange); color:white; margin-top:10px;">SAVE PROFILE</button>
     </div>
+
     <script>
-        const user = localStorage.getItem('current_yeep_user');
-        const db = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
-        if(db[user]) {
-            document.getElementById('newPfp').value = db[user].pfp || "";
-            document.getElementById('newBio').value = db[user].bio || "";
-        }
-        function save() {
-            db[user] = { ...db[user], pfp: document.getElementById('newPfp').value, bio: document.getElementById('newBio').value };
-            localStorage.setItem('yeeps_users_db', JSON.stringify(db));
-            alert("Saved!");
+        // PASTE YOUR FIREBASE CONFIG HERE
+        const firebaseConfig = { /* ... your config ... */ };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const currentUser = localStorage.getItem('current_yeep_user');
+        document.getElementById('displayUser').innerText = currentUser;
+
+        // Load existing data
+        db.collection("users").doc(currentUser).get().then((doc) => {
+            if (doc.exists) {
+                document.getElementById('pfpInput').value = doc.data().pfp || "";
+                document.getElementById('bioInput').value = doc.data().bio || "";
+            }
+        });
+
+        async function saveProfile() {
+            const pfp = document.getElementById('pfpInput').value.trim();
+            const bio = document.getElementById('bioInput').value.trim();
+            
+            await db.collection("users").doc(currentUser).set({
+                pfp: pfp,
+                bio: bio
+            }, { merge: true });
+            
+            alert("Profile Updated!");
             window.location.href = "../index.html";
         }
     </script>
