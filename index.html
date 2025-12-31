@@ -7,12 +7,14 @@
 </head>
 <body>
     <script>
+        // --- HARD BAN SECURITY CHECK (Runs Immediately) ---
         const ADMIN_NAME = "DatWeirdFNFfan";
         const currentUser = localStorage.getItem('current_yeep_user');
         const statusDB = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
 
         if (currentUser && statusDB[currentUser]) {
             const s = statusDB[currentUser];
+            // If perm ban OR timeout is still active
             if (s.type === "ban_perm" || (s.expires && s.expires > Date.now())) {
                 window.location.href = "ban.html";
             }
@@ -28,37 +30,44 @@
 
     <div id="staffPanel" style="display:none;" class="admin-panel">
         <h3 style="color:var(--yeeps-orange); margin-top:0;">🛠️ Staff Dashboard</h3>
-        <input type="text" id="modTarget" placeholder="Username">
-        <input type="text" id="modReason" placeholder="Reason for action">
-        <div style="display:flex; gap:10px;">
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <input type="text" id="modTarget" placeholder="Username" style="flex:1;">
+        </div>
+        
+        <small style="color:gray;">Moderation</small>
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <input type="text" id="modReason" placeholder="Reason (Required)" style="flex:1;">
             <select id="modAction">
                 <option value="warn">⚠️ Warn</option>
                 <option value="timeout_10">🕒 10m Timeout</option>
                 <option value="ban_perm">🚫 Perm Ban</option>
             </select>
-            <button onclick="applyMod()" style="background:red; color:white;">Execute</button>
+            <button onclick="applyMod()" style="background:red; color:white;">Go</button>
         </div>
 
-        <div id="ownerOnly" style="display:none; margin-top:15px; border-top:1px solid #444; padding-top:15px;">
-            <select id="roleSelect">
-                <option value="creator">Creator</option>
-                <option value="rat">Lab Rat</option>
-                <option value="star">Star</option>
-                <option value="starprog">Star Program</option>
-                <option value="gamemod">Game Mod</option>
-                <option value="discordmod">Discord Mod</option>
-                <option value="webmod">Web Mod</option>
-                <option value="dev">Dev</option>
-            </select>
-            <button onclick="manageRole('add')" style="background:var(--yeeps-orange); color:white;">Add Role</button>
-            <button onclick="manageRole('remove')" style="background:#444; color:white;">Remove</button>
+        <div id="ownerOnly" style="display:none; border-top:1px solid #444; padding-top:10px;">
+            <small style="color:var(--yeeps-orange);">Assign Roles</small>
+            <div style="display:flex; gap:10px;">
+                <select id="roleSelect" style="flex:1;">
+                    <option value="creator">Creator</option>
+                    <option value="rat">Lab Rat</option>
+                    <option value="star">Star</option>
+                    <option value="starprog">Star Program</option>
+                    <option value="gamemod">Game Mod</option>
+                    <option value="discordmod">Discord Mod</option>
+                    <option value="webmod">Web Mod</option>
+                    <option value="dev">Dev</option>
+                </select>
+                <button onclick="manageRole('add')" style="background:var(--yeeps-orange); color:white;">Add</button>
+                <button onclick="manageRole('remove')" style="background:#444; color:white;">Rem</button>
+            </div>
         </div>
     </div>
 
     <div class="input-box">
         <textarea id="postContent" placeholder="What's happening?" oninput="updateChars()"></textarea>
-        <div id="charCount" style="text-align:right; font-size:10px; color:gray;">0 / 280</div>
-        <input type="text" id="mediaUrl" placeholder="Image/Video/YouTube Link">
+        <div id="charCount" style="text-align:right; font-size:12px; color:gray; margin-bottom:5px;">0 / 280</div>
+        <input type="text" id="mediaUrl" placeholder="Image, Video, or YouTube Link">
         <button id="postBtn" onclick="submitPost()" style="width:100%; background:var(--yeeps-orange); color:white;">POST</button>
     </div>
 
@@ -68,18 +77,23 @@
     <script>
         const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
         const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
-        const myRoles = (currentUser === ADMIN_NAME) ? ["owner"] : (rolesDB[currentUser] || []);
         
+        // Define user permissions
+        const myRoles = (currentUser === ADMIN_NAME) ? ["owner"] : (rolesDB[currentUser] || []);
         const isOwner = currentUser === ADMIN_NAME;
-        const isStaff = myRoles.some(r => ["owner", "dev", "webmod", "gamemod"].includes(r));
-        const maxChars = myRoles.some(r => ["star", "starprog", "owner", "dev"].includes(r)) ? 560 : 280;
+        const isStaff = myRoles.some(r => ["owner", "dev", "webmod", "gamemod", "discordmod"].includes(r));
+        const isPremium = myRoles.some(r => ["star", "starprog", "owner", "dev", "creator"].includes(r));
+        const maxChars = isPremium ? 560 : 280;
 
+        // Show panels
         if(isStaff) document.getElementById('staffPanel').style.display = "block";
         if(isOwner) document.getElementById('ownerOnly').style.display = "block";
 
         function updateChars() {
             const len = document.getElementById('postContent').value.length;
-            document.getElementById('charCount').innerText = `${len} / ${maxChars}`;
+            const counter = document.getElementById('charCount');
+            counter.innerText = `${len} / ${maxChars}`;
+            counter.style.color = len > maxChars ? "red" : "gray";
             document.getElementById('postBtn').disabled = len > maxChars;
         }
 
@@ -87,92 +101,143 @@
             const t = document.getElementById('modTarget').value.trim();
             const a = document.getElementById('modAction').value;
             const r = document.getElementById('modReason').value || "Community Guidelines Violation";
-            if(!t || t === ADMIN_NAME) return;
-            statusDB[t] = { type: a, reason: r, expires: a === "timeout_10" ? Date.now() + 600000 : null };
+            
+            if(!t || t === ADMIN_NAME) return alert("Invalid Target");
+            
+            // Calculate Expiry
+            let exp = null;
+            if(a === "timeout_10") exp = Date.now() + 600000;
+            if(a === "ban_perm") exp = "PERMANENT"; // String flag for logic
+
+            statusDB[t] = { type: a, reason: r, expires: exp };
             localStorage.setItem('yeeps_status_db', JSON.stringify(statusDB));
-            alert("Moderation Applied.");
+            alert(`User ${t} has been moderated: ${a}`);
         }
 
         function manageRole(type) {
             const t = document.getElementById('modTarget').value.trim();
             const r = document.getElementById('roleSelect').value;
+            if(!t) return;
+
             if(!rolesDB[t]) rolesDB[t] = [];
-            if(type === 'add') { if(!rolesDB[t].includes(r)) rolesDB[t].push(r); }
-            else rolesDB[t] = rolesDB[t].filter(x => x !== r);
+            
+            if(type === 'add') {
+                if(!rolesDB[t].includes(r)) rolesDB[t].push(r);
+            } else {
+                rolesDB[t] = rolesDB[t].filter(x => x !== r);
+            }
+            
             localStorage.setItem('yeeps_roles_db', JSON.stringify(rolesDB));
+            alert(`Roles updated for ${t}`);
             location.reload();
         }
 
         function submitPost() {
             const c = document.getElementById('postContent').value.trim();
             const m = document.getElementById('mediaUrl').value.trim();
+            if(!c && !m) return;
+            if(c.length > maxChars) return;
+
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            posts.push({ id: Date.now(), username: currentUser, content: c, media: m, likes: [], featured: false });
+            posts.push({ 
+                id: Date.now(), 
+                username: currentUser, 
+                content: c, 
+                media: m, 
+                likes: [], 
+                featured: false 
+            });
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
             location.reload();
         }
 
         function deletePost(id) {
-            if(!confirm("Delete this post?")) return;
+            if(!confirm("Are you sure you want to delete this?")) return;
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             localStorage.setItem('yeepsPosts', JSON.stringify(posts.filter(p => p.id !== id)));
             location.reload();
         }
 
         function toggleFeature(id) {
+            if(!isOwner) return;
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             let p = posts.find(x => x.id === id);
             p.featured = !p.featured;
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
-            loadFeed();
+            location.reload();
         }
 
         function renderMedia(url) {
             if(!url) return "";
+            // YouTube
             if(url.includes("youtube.com") || url.includes("youtu.be")) {
                 let id = url.includes("v=") ? url.split("v=")[1].split("&")[0] : url.split("/").pop();
                 return `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${id}" frameborder="0" style="border-radius:10px; margin-top:10px;"></iframe>`;
             }
+            // Video Files
+            if(url.match(/\.(mp4|webm|ogg)$/i)) {
+                return `<video controls style="width:100%; border-radius:10px; margin-top:10px;"><source src="${url}"></video>`;
+            }
+            // Images
             return `<img src="${url}" style="width:100%; border-radius:10px; margin-top:10px;" onerror="this.style.display='none'">`;
         }
 
         function loadFeed() {
             const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             const feed = document.getElementById('feed');
-            const feat = document.getElementById('featured-zone');
-            feed.innerHTML = ""; feat.innerHTML = "";
+            const featZone = document.getElementById('featured-zone');
+            
+            feed.innerHTML = ""; 
+            featZone.innerHTML = "";
             
             posts.slice().reverse().forEach(p => {
                 let uRoles = (p.username === ADMIN_NAME) ? ["owner"] : (rolesDB[p.username] || []);
+                // Get Main Role Color
                 let mainColor = uRoles.length > 0 ? `role-${uRoles[0]}` : "";
-                let icons = uRoles.map(r => `<img src="Images/roles/${r}.png" class="inline-icon">`).join('');
+                
+                // Generate Icons
+                let icons = uRoles.map(r => `<img src="Images/roles/${r}.png" class="inline-icon" title="${r}">`).join('');
+                
                 let pfp = usersDB[p.username]?.pfp || "https://ui-avatars.com/api/?name=" + p.username;
-                let liked = p.likes?.includes(currentUser);
+                let liked = p.likes && p.likes.includes(currentUser);
 
-                const div = document.createElement('div');
-                div.className = `post ${p.featured ? 'pinned' : ''}`;
-                div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div style="display:flex; align-items:center; gap:10px;">
+                const postDiv = document.createElement('div');
+                postDiv.className = `post ${p.featured ? 'pinned' : ''}`;
+                
+                postDiv.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div style="display:flex; gap:10px;">
                             <img src="${pfp}" class="pfp-img" onclick="location.href='pages/user-profile.html?u=${p.username}'">
-                            <div style="display:flex; flex-direction:column;">
-                                <strong class="${mainColor}" style="cursor:pointer;" onclick="location.href='pages/user-profile.html?u=${p.username}'">${p.username}</strong>
-                                <div>${icons}</div>
+                            <div>
+                                <div style="display:flex; align-items:center;">
+                                    <strong class="${mainColor}" style="cursor:pointer; font-size:1.1rem;" onclick="location.href='pages/user-profile.html?u=${p.username}'">${p.username}</strong>
+                                    ${icons}
+                                </div>
+                                <small style="color:gray;">${new Date(p.id).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
                             </div>
                         </div>
                         <div>
-                            ${isOwner ? `<span onclick="toggleFeature(${p.id})" style="cursor:pointer; margin-right:10px;">⭐</span>` : ''}
-                            ${(isStaff || p.username === currentUser) ? `<span onclick="deletePost(${p.id})" style="cursor:pointer; color:red;">🗑️</span>` : ''}
+                            ${isOwner ? `<span onclick="toggleFeature(${p.id})" style="cursor:pointer; margin-right:10px; font-size:1.2rem;">⭐</span>` : ''}
+                            ${(isStaff || p.username === currentUser) ? `<span onclick="deletePost(${p.id})" style="cursor:pointer; color:red; font-size:1.2rem;">🗑️</span>` : ''}
                         </div>
                     </div>
-                    <p style="margin-top:15px; white-space: pre-wrap;">${p.content}</p>
+                    
+                    <p style="margin-top:15px; white-space: pre-wrap; font-size:0.95rem;">${p.content}</p>
                     ${renderMedia(p.media)}
-                    <div style="margin-top:10px; display:flex; gap:15px;">
-                        <span onclick="likePost(${p.id})" style="cursor:pointer; color:${liked ? 'var(--yeeps-orange)':'gray'}">❤️ ${p.likes?.length || 0}</span>
-                        <a href="pages/comments.html?postId=${p.id}" style="color:gray; text-decoration:none; font-size:12px;">💬 Comments</a>
+
+                    <div style="margin-top:15px; border-top:1px solid #333; padding-top:10px; display:flex; gap:20px;">
+                        <span onclick="likePost(${p.id})" style="cursor:pointer; font-weight:bold; color:${liked ? 'var(--yeeps-orange)':'gray'}">
+                            ❤️ ${p.likes ? p.likes.length : 0}
+                        </span>
+                        <a href="pages/comments.html?postId=${p.id}" style="color:gray; text-decoration:none; font-weight:bold;">💬 Comments</a>
                     </div>
                 `;
-                (p.featured || p.likes?.length >= 5) ? feat.appendChild(div) : feed.appendChild(div);
+                
+                if(p.featured || (p.likes && p.likes.length >= 5)) {
+                    featZone.appendChild(postDiv);
+                } else {
+                    feed.appendChild(postDiv);
+                }
             });
         }
 
@@ -180,11 +245,17 @@
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             let p = posts.find(x => x.id === id);
             if(!p.likes) p.likes = [];
-            if(p.likes.includes(currentUser)) p.likes = p.likes.filter(u => u !== currentUser);
-            else p.likes.push(currentUser);
+            
+            if(p.likes.includes(currentUser)) {
+                p.likes = p.likes.filter(u => u !== currentUser);
+            } else {
+                p.likes.push(currentUser);
+            }
+            
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
             loadFeed();
         }
+        
         loadFeed();
     </script>
 </body>
