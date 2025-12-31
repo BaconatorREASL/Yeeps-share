@@ -1,49 +1,50 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>User Profile | Yeeps-Share</title>
     <link rel="stylesheet" href="../style.css">
-    <title>Profile</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <nav class="top-nav">
-        <a href="../index.html">Back to Feed</a>
-    </nav>
+    <nav class="top-nav"><a href="../index.html">Back to Feed</a></nav>
 
-    <div id="profileContent" style="margin-top:20px;"></div>
-    <div id="userPosts" style="width:480px;"></div>
+    <div class="admin-panel" style="text-align:center;">
+        <img id="userPfp" src="" class="pfp-img" style="width:100px; height:100px;">
+        <h1 id="userName">User</h1>
+        <p id="userBio" style="font-style:italic; color:gray;">No bio set.</p>
+    </div>
+
+    <h3 style="text-align:center;">User's Posts</h3>
+    <div id="userPosts"></div>
 
     <script>
-        const u = new URLSearchParams(window.location.search).get('u');
-        const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
-        const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
-        const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-        
-        const data = usersDB[u] || {};
-        let uRoles = (u === "DatWeirdFNFfan") ? ["owner"] : (rolesDB[u] || []);
-        if(!Array.isArray(uRoles)) uRoles = [uRoles];
+        const firebaseConfig = { /* ... your config ... */ };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetUser = urlParams.get('u');
 
-        const roleNames = { owner: "Owner", creator: "Creator", rat: "Lab Rat", star: "Star", starprog: "Star Program", gamemod: "Game Mod", discordmod: "Discord Mod", webmod: "Web Mod", dev: "Dev" };
+        // Load User Info
+        db.collection("users").doc(targetUser).get().then(doc => {
+            if(doc.exists) {
+                document.getElementById('userPfp').src = doc.data().pfp || "https://ui-avatars.com/api/?name=" + targetUser;
+                document.getElementById('userBio').innerText = doc.data().bio || "No bio set.";
+            } else {
+                document.getElementById('userPfp').src = "https://ui-avatars.com/api/?name=" + targetUser;
+            }
+            document.getElementById('userName').innerText = targetUser;
+        });
 
-        let roleHTML = uRoles.map(r => `
-            <div class="role-card">
-                <img src="../Images/roles/${r}.png" style="width:20px; height:20px; object-fit:contain;" onerror="this.style.display='none'">
-                <span class="role-${r}" style="font-weight:bold;">${roleNames[r]}</span>
-            </div>
-        `).join('');
-
-        document.getElementById('profileContent').innerHTML = `
-            <div class="admin-panel" style="text-align:center; margin:auto; margin-bottom:20px;">
-                <img src="${data.pfp || 'https://ui-avatars.com/api/?name='+u}" class="pfp-large">
-                <h1 class="${uRoles.length > 0 ? 'role-'+uRoles[0] : ''}">${u}</h1>
-                <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:5px;">${roleHTML}</div>
-                <p style="color:var(--text-dim); margin-top:15px;">${data.bio || "No bio set."}</p>
-            </div>
-        `;
-
-        const postList = document.getElementById('userPosts');
-        posts.filter(p => p.username === u).reverse().forEach(p => {
-            postList.innerHTML += `<div class="post"><p>${p.content}</p></div>`;
+        // Load only this user's posts
+        db.collection("posts").where("username", "==", targetUser).onSnapshot(snap => {
+            const feed = document.getElementById('userPosts');
+            feed.innerHTML = "";
+            snap.forEach(doc => {
+                const p = doc.data();
+                feed.innerHTML += `<div class="post"><strong>${p.username}</strong><p>${p.content}</p></div>`;
+            });
         });
     </script>
 </body>
