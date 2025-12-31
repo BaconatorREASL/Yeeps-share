@@ -1,4 +1,4 @@
-                <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -34,13 +34,13 @@
             <option value="dev">Game Dev</option>
             <option value="none">Remove Role</option>
         </select>
-        <button onclick="assignRole()" class="btn-post" style="width:auto; padding:5px 15px;">Apply</button>
+        <button onclick="assignRole()" style="padding:5px 15px; cursor:pointer;">Apply</button>
     </div>
 
     <div class="input-box">
-        <input type="text" id="postContent" placeholder="What's happening in Yeeps?">
+        <input type="text" id="postContent" placeholder="What's happening?">
         <input type="text" id="postImg" placeholder="Image URL (Optional)">
-        <button onclick="submitPost()" class="btn-post" style="width:100%; background:var(--yeeps-orange); color:white; padding:10px; border:none; border-radius:10px; font-weight:bold;">Post to Feed</button>
+        <button onclick="submitPost()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">Post to Feed</button>
     </div>
 
     <div id="featured-zone"></div>
@@ -55,6 +55,16 @@
         function toggleMusic() {
             const m = document.getElementById('bgMusic');
             m.paused ? (m.play(), document.getElementById('mBtn').innerText="🔊") : (m.pause(), document.getElementById('mBtn').innerText="🔇");
+        }
+
+        function getRoleHTML(username, rolesDB) {
+            let roleKey = (username === ADMIN_NAME) ? "owner" : (rolesDB[username] || "");
+            const roleNames = { owner: "Owner", creator: "Content Creator", rat: "Lab Rat", star: "Star Creator", starprog: "Star Program", gamemod: "Game Mod", discordmod: "Discord Mod", webmod: "Web Mod", dev: "Game Dev" };
+            const verified = ["owner", "dev", "star", "gamemod"].includes(roleKey);
+            return {
+                check: verified ? '<span class="checkmark">✔</span>' : '',
+                badge: roleKey ? `<div class="badge role-${roleKey}">${roleNames[roleKey]}</div>` : ''
+            };
         }
 
         function submitPost() {
@@ -73,11 +83,11 @@
             let roles = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
             if(role === "none") delete roles[target]; else roles[target] = role;
             localStorage.setItem('yeeps_roles_db', JSON.stringify(roles));
-            alert("Role updated!"); location.reload();
+            location.reload();
         }
 
         function deletePost(id) {
-            if(!confirm("Delete this post?")) return;
+            if(!confirm("Delete?")) return;
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             localStorage.setItem('yeepsPosts', JSON.stringify(posts.filter(p => p.id !== id)));
             location.reload();
@@ -96,38 +106,32 @@
             const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
             const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
             const isOwner = currentUser === ADMIN_NAME;
-
             if(isOwner) document.getElementById('ownerTools').style.display = 'block';
 
             posts.slice().reverse().forEach(p => {
+                const roleData = getRoleHTML(p.username, rolesDB);
                 const pfp = usersDB[p.username]?.pfp || "https://ui-avatars.com/api/?name=" + p.username;
-                let roleKey = p.username === ADMIN_NAME ? "owner" : (rolesDB[p.username] || "");
-                
-                const roleNames = { owner: "Owner", creator: "Content Creator", rat: "Lab Rat", star: "Star Creator", starprog: "Star Program", gamemod: "Game Mod", discordmod: "Discord Mod", webmod: "Web Mod", dev: "Game Dev" };
-                const check = ["owner", "dev", "star", "gamemod"].includes(roleKey) ? '<span class="checkmark">✔</span>' : '';
-
                 const div = document.createElement('div');
                 div.className = `post ${p.isPinned ? 'pinned' : ''}`;
                 div.innerHTML = `
                     <div class="post-header">
                         <img src="${pfp}" class="pfp-img" onclick="window.location.href='pages/user-profile.html?u=${p.username}'">
                         <div>
-                            <strong>${p.username}${check}</strong>
-                            ${roleKey ? `<div class="badge role-${roleKey}">${roleNames[roleKey]}</div>` : ''}
+                            <strong>${p.username}${roleData.check}</strong>
+                            ${roleData.badge}
                         </div>
                     </div>
                     <p>${p.content}</p>
                     ${p.image ? `<img src="${p.image}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ''}
                     <div style="display:flex; gap:15px; align-items:center;">
                         <a href="pages/comments.html?postId=${p.id}" style="color:var(--yeeps-orange); font-weight:bold; text-decoration:none; font-size:0.8rem;">💬 Comments</a>
-                        ${(isOwner || p.username === currentUser) ? `<button onclick="deletePost(${p.id})" style="color:red; background:none; border:none; cursor:pointer; font-size:0.8rem; font-weight:bold;">Delete</button>` : ''}
+                        ${(isOwner || p.username === currentUser) ? `<button onclick="deletePost(${p.id})" style="color:red; background:none; border:none; cursor:pointer; font-size:0.8rem;">Delete</button>` : ''}
                         ${isOwner ? `<button onclick="toggleFeature(${p.id})" style="color:blue; background:none; border:none; cursor:pointer; font-size:0.8rem;">Feature</button>` : ''}
                     </div>
                 `;
                 p.isPinned ? document.getElementById('featured-zone').appendChild(div) : document.getElementById('feed').appendChild(div);
             });
         }
-
         function logout() { localStorage.removeItem('current_yeep_user'); location.reload(); }
         loadFeed();
     </script>
