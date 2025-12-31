@@ -11,6 +11,9 @@
             --yeeps-blue: #87CEEB;
             --yeeps-dark: #333;
             --yeeps-pink: #ff4d94;
+            --role-dev: #5865F2; /* Discord Blue */
+            --role-mod: #3BA55D; /* Green */
+            --role-rat: #9ea1a4; /* Gray */
         }
 
         body {
@@ -23,63 +26,38 @@
             padding: 80px 20px 20px 20px;
         }
 
-        /* --- LOGIN MODAL --- */
-        #loginOverlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .login-box {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            border: 5px solid var(--yeeps-orange);
-            width: 300px;
-        }
-
-        /* --- NAVIGATION & MUSIC --- */
+        /* --- UI ELEMENTS --- */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; border: 5px solid var(--yeeps-orange); width: 300px; }
         .top-nav { position: fixed; top: 0; width: 100%; background: rgba(0, 0, 0, 0.8); padding: 10px 0; display: flex; justify-content: center; gap: 15px; z-index: 1000; }
         .top-nav a { color: white; text-decoration: none; font-weight: bold; font-size: 0.8rem; padding: 5px 10px; border-radius: 5px; }
-        .top-nav a:hover { background: var(--yeeps-orange); }
+        .music-ctrl { position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 50px; border: 2px solid var(--yeeps-orange); z-index: 1000; }
 
-        .music-ctrl { position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 50px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; z-index: 1000; border: 2px solid var(--yeeps-orange); }
-        .mute-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
-
-        /* --- POST STYLES --- */
-        h1 { color: white; text-shadow: 3px 3px 0px var(--yeeps-orange); font-size: 2.5rem; margin-bottom: 10px; }
-        
-        .input-container { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 500px; margin-bottom: 30px; border: 4px solid var(--yeeps-orange); box-shadow: 0 8px 0 rgba(0,0,0,0.1); }
-        input, select { width: 95%; padding: 10px; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; }
-        
-        .post { background: white; padding: 15px; margin-bottom: 20px; border-radius: 15px; position: relative; width: 100%; max-width: 500px; }
+        /* --- POSTS --- */
+        .post { background: white; padding: 15px; margin-bottom: 20px; border-radius: 15px; width: 100%; max-width: 500px; box-shadow: 0 4px 0 rgba(0,0,0,0.05); }
         .post.pinned { border: 4px solid var(--yeeps-yellow); background: #fffbea; }
         
-        /* ADMIN BADGE STYLE */
-        .post-user { font-weight: bold; color: var(--yeeps-orange); font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
-        .verified-badge { background: var(--yeeps-yellow); color: var(--yeeps-dark); font-size: 0.6rem; padding: 2px 6px; border-radius: 10px; border: 1px solid var(--yeeps-orange); text-transform: uppercase; }
-        
+        /* ROLE BADGES */
+        .post-user { font-weight: bold; color: var(--yeeps-orange); display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+        .badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 10px; color: white; text-transform: uppercase; font-weight: 800; border: 1px solid rgba(0,0,0,0.1); }
+        .badge-owner { background: var(--yeeps-yellow); color: var(--yeeps-dark); }
+        .badge-dev { background: var(--role-dev); }
+        .badge-mod { background: var(--role-mod); }
+        .badge-rat { background: var(--role-rat); }
+        .badge-reviewer { background: #9b59b6; }
+
         .media-display { width: 100%; border-radius: 10px; margin-top: 10px; }
-        .link-card { display: block; background: #f0f2f5; padding: 10px; border-radius: 10px; text-decoration: none; color: #007bff; margin-top: 10px; }
+        .input-container { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 500px; margin-bottom: 30px; border: 4px solid var(--yeeps-orange); }
+        input, select { width: 95%; padding: 10px; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 10px; }
 
-        .post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
-        .like-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; }
-        .like-btn.liked { color: var(--yeeps-pink); }
-        .user-del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-
-        .admin-panel { background: #fff9e6; padding: 8px; border-radius: 8px; margin-top: 10px; display: flex; gap: 5px; border: 1px solid var(--yeeps-yellow); }
+        .admin-panel { background: #fff9e6; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--yeeps-yellow); font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <div id="loginOverlay">
         <div class="login-box">
-            <h2>Yeeps-Share Login</h2>
+            <h2>Yeeps-Share</h2>
             <input type="text" id="loginUsername" placeholder="Username...">
             <button onclick="performLogin()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;">Enter Site</button>
         </div>
@@ -88,17 +66,14 @@
     <nav class="top-nav">
         <a href="https://www.meta.com/experiences/7276525889052788/" target="_blank">🎮 Play Yeeps</a>
         <a href="https://discord.gg/yeeps" target="_blank">💬 Discord</a>
-        <a href="https://yeeps.com/" target="_blank">🌐 Web</a>
         <a href="#" onclick="logout()" id="logoutLink" style="display:none; color: #ff4d4d;">Logout</a>
     </nav>
 
     <h1>🧱 Yeeps-Share</h1>
 
     <div class="music-ctrl">
-        <button id="muteBtn" class="mute-btn" onclick="toggleMusic()">🔇</button>
-        <audio id="bgMusic" loop>
-            <source src="music/SuburbTheme.ogg" type="audio/ogg">
-        </audio>
+        <button id="muteBtn" onclick="toggleMusic()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">🔇</button>
+        <audio id="bgMusic" loop><source src="music/SuburbTheme.ogg" type="audio/ogg"></audio>
     </div>
 
     <div id="featured-zone" style="display:none; width: 100%; max-width: 500px;">
@@ -107,7 +82,7 @@
     </div>
 
     <div class="input-container">
-        <input type="text" id="postText" placeholder="Share a clip or a tip!">
+        <input type="text" id="postText" placeholder="What's the news?">
         <select id="mediaType">
             <option value="none">Text Only</option>
             <option value="link">🔗 Link</option>
@@ -115,17 +90,16 @@
             <option value="video">🎥 Video (.mp4)</option>
         </select>
         <input type="text" id="mediaUrl" placeholder="Paste URL here..." style="display:none;">
-        <button style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="addPost()">Post to Feed</button>
+        <button style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="addPost()">Post</button>
     </div>
 
     <div id="feed" style="width: 100%; max-width: 500px;"></div>
 
     <script>
-        // --- CONFIG ---
-        const ADMIN_USERNAME = "YeepMaster123"; // Remember this name for admin powers!
+        // --- NEW ADMIN NAME ---
+        const ADMIN_USERNAME = "DatWeirdFNFfan"; 
         let isAdmin = false;
 
-        // --- LOGIN ---
         function performLogin() {
             const name = document.getElementById('loginUsername').value.trim();
             if(!name) return;
@@ -133,16 +107,9 @@
             location.reload(); 
         }
 
-        function checkAdmin(name) {
-            if (name === ADMIN_USERNAME) isAdmin = true;
-        }
+        function checkAdmin(name) { if (name === ADMIN_USERNAME) isAdmin = true; }
+        function logout() { localStorage.removeItem('yeeps_username'); location.reload(); }
 
-        function logout() {
-            localStorage.removeItem('yeeps_username');
-            location.reload();
-        }
-
-        // --- MUSIC ---
         const music = document.getElementById('bgMusic');
         let isMuted = true;
         function toggleMusic() {
@@ -151,7 +118,6 @@
             document.getElementById('muteBtn').innerText = isMuted ? "🔇" : "🔊";
         }
 
-        // --- CORE LOGIC ---
         document.getElementById('mediaType').addEventListener('change', function() {
             document.getElementById('mediaUrl').style.display = (this.value === 'none') ? 'none' : 'block';
         });
@@ -172,16 +138,13 @@
                 mediaUrl: url,
                 isPinned: false,
                 creatorId: getUserId(),
-                likes: 0,
-                isAdminPost: (user === ADMIN_USERNAME) // Tag post as Admin
+                likes: 0
             };
 
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             posts.push(post);
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
-            
             document.getElementById('postText').value = '';
-            document.getElementById('mediaUrl').value = '';
             loadPosts();
         }
 
@@ -189,53 +152,62 @@
             const postDiv = document.createElement('div');
             postDiv.className = `post ${post.isPinned ? 'pinned' : ''}`;
             
+            // Get user role
+            const userRoles = JSON.parse(localStorage.getItem('yeeps_user_roles')) || {};
+            const role = userRoles[post.creatorId] || "";
+
+            let badgeHTML = "";
+            if (post.username === ADMIN_USERNAME) badgeHTML = `<span class="badge badge-owner">OWNER</span>`;
+            else if (role === "dev") badgeHTML = `<span class="badge badge-dev">Yeeps Dev</span>`;
+            else if (role === "webdev") badgeHTML = `<span class="badge badge-dev" style="background:#202225">Web Dev</span>`;
+            else if (role === "mod") badgeHTML = `<span class="badge badge-mod">Moderator</span>`;
+            else if (role === "rat") badgeHTML = `<span class="badge badge-rat">Lab Rat</span>`;
+            else if (role === "reviewer") badgeHTML = `<span class="badge badge-reviewer">Reviewer</span>`;
+
             let mediaHTML = '';
-            if (post.mediaType === 'link') mediaHTML = `<a href="${post.mediaUrl}" target="_blank" class="link-card">🔗 Visit Link</a>`;
+            if (post.mediaType === 'link') mediaHTML = `<a href="${post.mediaUrl}" target="_blank">🔗 Link</a>`;
             else if (post.mediaType === 'image') mediaHTML = `<img src="${post.mediaUrl}" class="media-display">`;
             else if (post.mediaType === 'video') mediaHTML = `<video controls class="media-display"><source src="${post.mediaUrl}" type="video/mp4"></video>`;
 
-            const isCreator = post.creatorId === getUserId();
-            const deleteBtn = (isCreator || isAdmin) ? `<button class="user-del-btn" onclick="deletePost(${post.id})">Delete</button>` : '';
-            const hasLiked = (JSON.parse(localStorage.getItem('yeeps_liked')) || []).includes(post.id);
-
-            // ADMIN BADGE LOGIC
-            const adminBadge = post.isAdminPost ? `<span class="verified-badge">OWNER</span>` : '';
-
             postDiv.innerHTML = `
-                <div class="post-user">👤 ${post.username} ${adminBadge}</div>
-                <div class="post-content" style="margin-top:5px;">${post.content}</div>
+                <div class="post-user">👤 ${post.username} ${badgeHTML}</div>
+                <div style="margin:10px 0">${post.content}</div>
                 ${mediaHTML}
-                <div class="post-footer">
-                    <button class="like-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
-                        ${hasLiked ? '❤️' : '🤍'} <span>${post.likes || 0}</span>
-                    </button>
-                    ${deleteBtn}
+                <div style="margin-top:10px; display:flex; justify-content:space-between;">
+                    <button onclick="toggleLike(${post.id})" style="border:none; background:none; cursor:pointer;">❤️ ${post.likes || 0}</button>
+                    ${(isAdmin || post.creatorId === getUserId()) ? `<button onclick="deletePost(${post.id})" style="color:red; border:none; background:none; cursor:pointer;">Delete</button>` : ''}
                 </div>
-                ${isAdmin ? `<div class="admin-panel"><button onclick="togglePin(${post.id})" style="border:none; cursor:pointer; background:none; font-weight:bold;">${post.isPinned ? '❌ Unstar' : '⭐ Star This'}</button></div>` : ''}
+                ${isAdmin ? `
+                    <div class="admin-panel">
+                        <strong>Owner Tools:</strong><br>
+                        <button onclick="togglePin(${post.id})">Pin</button>
+                        <select onchange="assignRole('${post.creatorId}', this.value)">
+                            <option value="">Give Role...</option>
+                            <option value="rat">Lab Rat</option>
+                            <option value="reviewer">Reviewer</option>
+                            <option value="mod">Moderator</option>
+                            <option value="dev">Yeeps Dev</option>
+                            <option value="webdev">Website Dev</option>
+                            <option value="none">Remove Role</option>
+                        </select>
+                    </div>
+                ` : ''}
             `;
             return postDiv;
+        }
+
+        function assignRole(uid, role) {
+            let roles = JSON.parse(localStorage.getItem('yeeps_user_roles')) || {};
+            if(role === "none") delete roles[uid];
+            else roles[uid] = role;
+            localStorage.setItem('yeeps_user_roles', JSON.stringify(roles));
+            loadPosts();
         }
 
         function getUserId() {
             let id = localStorage.getItem('yeeps_user_id');
             if (!id) { id = 'u_' + Math.random().toString(36).substr(2, 9); localStorage.setItem('yeeps_user_id', id); }
             return id;
-        }
-
-        function toggleLike(id) {
-            let liked = JSON.parse(localStorage.getItem('yeeps_liked')) || [];
-            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const idx = posts.findIndex(p => p.id === id);
-            if (liked.includes(id)) {
-                liked = liked.filter(l => l !== id);
-                posts[idx].likes = Math.max(0, (posts[idx].likes || 1) - 1);
-            } else {
-                liked.push(id);
-                posts[idx].likes = (posts[idx].likes || 0) + 1;
-            }
-            localStorage.setItem('yeeps_liked', JSON.stringify(liked));
-            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
-            loadPosts();
         }
 
         function loadPosts() {
@@ -264,6 +236,14 @@
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
             const i = posts.findIndex(p => p.id === id);
             posts[i].isPinned = !posts[i].isPinned;
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
+            loadPosts();
+        }
+
+        function toggleLike(id) {
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            const idx = posts.findIndex(p => p.id === id);
+            posts[idx].likes = (posts[idx].likes || 0) + 1;
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
             loadPosts();
         }
