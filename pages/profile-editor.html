@@ -7,32 +7,23 @@
 </head>
 <body>
     <nav class="top-nav"><a href="../index.html">🏠 Home</a></nav>
-
     <div class="input-box" style="margin-top:40px; text-align:center;">
-        <h2>Edit Profile</h2>
-        <input type="text" id="newPfp" placeholder="New PFP URL">
-        <textarea id="newBio" placeholder="Update your bio..."></textarea>
-        <input type="password" id="newPass" placeholder="Update Password">
-        <button onclick="save()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px;">Save Changes</button>
+        <h2>Settings</h2>
+        <input type="text" id="newPfp" placeholder="PFP Link">
+        <textarea id="newBio" placeholder="About you..."></textarea>
+        <button onclick="save()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px;">Save</button>
     </div>
-
     <script>
         const user = localStorage.getItem('current_yeep_user');
         const db = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
-
         if(db[user]) {
             document.getElementById('newPfp').value = db[user].pfp || "";
             document.getElementById('newBio').value = db[user].bio || "";
         }
-
         function save() {
-            db[user] = {
-                pfp: document.getElementById('newPfp').value,
-                bio: document.getElementById('newBio').value,
-                password: document.getElementById('newPass').value || db[user]?.password
-            };
+            db[user] = { ...db[user], pfp: document.getElementById('newPfp').value, bio: document.getElementById('newBio').value };
             localStorage.setItem('yeeps_users_db', JSON.stringify(db));
-            alert("Profile saved!");
+            alert("Saved!");
             window.location.href = "../index.html";
         }
     </script>
