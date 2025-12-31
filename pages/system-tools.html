@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>System Recovery | Yeeps-Share</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .tool-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            border: 4px solid var(--yeeps-orange);
+            width: 400px;
+            text-align: center;
+        }
+        .btn-danger { background: #ff4d4d; color: white; margin-top: 10px; width: 100%; }
+        .btn-fix { background: #4caf50; color: white; margin-top: 10px; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="tool-card">
+        <h1>🛠️ System Recovery</h1>
+        <p>Use these tools if the feed is hidden or if roles are bugged.</p>
+        <hr>
+        
+        <button class="btn-fix" onclick="fixDataTypes()">🪄 Auto-Fix Data Types</button>
+        <small>Converts old string roles into the new list format.</small>
+
+        <button class="btn-danger" onclick="clearPosts()">🗑️ Clear All Posts</button>
+        <small>Use this if a specific post is crashing the feed.</small>
+
+        <button class="btn-danger" onclick="fullReset()">☢️ Factory Reset</button>
+        <small>Wipes EVERYTHING (Users, Posts, Roles).</small>
+        
+        <hr>
+        <button onclick="location.href='index.html'">🏠 Back to Home</button>
+    </div>
+
+    <script>
+        const ADMIN_NAME = "DatWeirdFNFfan";
+
+        function fixDataTypes() {
+            // Fix Roles
+            let rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
+            for (let user in rolesDB) {
+                if (typeof rolesDB[user] === 'string') {
+                    rolesDB[user] = [rolesDB[user]]; // Convert string to Array
+                }
+            }
+            localStorage.setItem('yeeps_roles_db', JSON.stringify(rolesDB));
+
+            // Fix Posts
+            let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+            posts = posts.filter(p => p.id && p.username); // Remove broken posts
+            localStorage.setItem('yeepsPosts', JSON.stringify(posts));
+
+            alert("Data formats have been updated and repaired!");
+        }
+
+        function clearPosts() {
+            if(confirm("Are you sure? This deletes every post on the site.")) {
+                localStorage.removeItem('yeepsPosts');
+                alert("Feed cleared.");
+            }
+        }
+
+        function fullReset() {
+            if(confirm("WARNING: This will delete all accounts, roles, and posts. Continue?")) {
+                localStorage.clear();
+                alert("Site has been fully reset.");
+                location.href = "login.html";
+            }
+        }
+    </script>
+</body>
+</html>
