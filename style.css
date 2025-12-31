@@ -1,6 +1,6 @@
-/* --- Global Theme --- */
 :root {
     --yeeps-orange: #FF8C00;
+    /* Role Colors */
     --role-owner: #36454F;
     --role-creator: #CED11D;
     --role-rat: #0AD100;
@@ -12,104 +12,85 @@
     --role-dev: #F3FF70;
 }
 
-/* Light background roles get dark text */
-.role-star, .role-dev, .role-creator, .role-webmod { color: #000 !important; }
-
-/* The rest is the same as your current CSS */
-body { 
-    font-family: 'Comic Sans MS', sans-serif; 
-    background: var(--yeeps-blue); 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    padding-top: 80px; 
-    margin: 0; 
+body {
+    font-family: 'Comic Sans MS', sans-serif;
+    background: url('Images/Background.png') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 90px;
+    margin: 0;
 }
 
-/* --- Navigation --- */
-.top-nav { 
-    position: fixed; 
-    top: 0; 
-    width: 100%; 
-    background: rgba(0,0,0,0.8); 
-    padding: 10px; 
-    display: flex; 
-    justify-content: center; 
-    gap: 20px; 
-    z-index: 1000; 
+.top-nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    z-index: 1000;
 }
+
+.nav-logo {
+    height: 45px;
+    cursor: pointer;
+}
+
 .top-nav a { color: white; text-decoration: none; font-weight: bold; }
 
-/* --- Post UI --- */
-.post { 
-    background: white; 
-    padding: 15px; 
-    margin-bottom: 20px; 
-    border-radius: 15px; 
-    width: 450px; 
-    box-shadow: 0 4px 0 rgba(0,0,0,0.1); 
-    border: 1px solid #eee;
-}
-.post.pinned { 
-    border: 4px solid var(--yeeps-yellow); 
-    background: #fffbea; 
+.admin-panel, .input-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 15px;
+    width: 480px;
+    margin-bottom: 20px;
+    border: 4px solid var(--yeeps-orange);
 }
 
-.post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.pfp-img { 
-    width: 45px; 
-    height: 45px; 
-    border-radius: 50%; 
-    object-fit: cover; 
-    border: 2px solid var(--yeeps-orange); 
-    cursor: pointer; 
+.post {
+    background: white;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    width: 480px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-/* --- Badges & Roles --- */
-.badge { 
-    font-size: 0.65rem; 
-    padding: 2px 8px; 
-    border-radius: 10px; 
-    color: white; 
-    font-weight: bold; 
-    width: fit-content; 
-    margin-top: 2px;
-    text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+.post-header { display: flex; align-items: center; gap: 12px; }
+
+.role-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
 }
 
-/* Light background roles need dark text */
-.role-dev, .role-star, .role-webmod { color: #333; }
+.role-icon { width: 18px; height: 18px; object-fit: contain; }
+
+.badge {
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Dark text for light colors */
+.role-star, .role-dev, .role-creator, .role-webmod { color: #000 !important; }
 
 .checkmark { color: #1DA1F2; margin-left: 5px; font-weight: bold; }
 
-/* --- Forms & Buttons --- */
-.input-box, .admin-panel { 
-    background: white; 
-    padding: 20px; 
-    border-radius: 15px; 
-    width: 450px; 
-    margin-bottom: 20px; 
-    border: 4px solid var(--yeeps-orange); 
-}
-input, textarea, select { 
-    width: 90%; 
-    padding: 10px; 
-    margin-bottom: 10px; 
-    border-radius: 8px; 
-    border: 2px solid #ddd; 
-}
-button { 
-    cursor: pointer; 
-    border-radius: 8px; 
-    font-weight: bold; 
+input, select, textarea {
+    width: 90%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 2px solid #ddd;
 }
 
-.music-ctrl { 
-    position: fixed; 
-    bottom: 20px; 
-    right: 20px; 
-    background: white; 
-    padding: 10px; 
-    border-radius: 50px; 
-    border: 2px solid var(--yeeps-orange); 
-}
+button { padding: 10px 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
