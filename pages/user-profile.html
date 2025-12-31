@@ -2,38 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Profile | Yeeps-Share</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
     <nav class="top-nav"><a href="../index.html">🏠 Home</a></nav>
-    <div id="profileHeader" style="margin-top:20px;"></div>
-    <h3>Recent Posts</h3>
-    <div id="userFeed"></div>
+    <div id="pHeader" style="margin-top:20px;"></div>
+    <div id="pFeed"></div>
 
     <script>
         const u = new URLSearchParams(window.location.search).get('u');
-        const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
-        const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
-        const userData = usersDB[u] || {};
+        const uDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+        const rDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
+        const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+        const data = uDB[u] || {};
 
-        // Reuse role logic
-        let roleKey = (u === "DatWeirdFNFfan") ? "owner" : (rolesDB[u] || "");
-        const check = ["owner", "dev", "star", "gamemod"].includes(roleKey) ? '<span class="checkmark">✔</span>' : '';
-
-        document.getElementById('profileHeader').innerHTML = `
+        document.getElementById('pHeader').innerHTML = `
             <div class="input-box" style="text-align:center;">
-                <img src="${userData.pfp || 'https://ui-avatars.com/api/?name='+u}" class="pfp-img" style="width:100px; height:100px;">
-                <h2>${u}${check}</h2>
-                <p>${userData.bio || "No bio set."}</p>
+                <img src="https://ui-avatars.com/api/?name=${u}" style="width:80px; border-radius:50%;">
+                <h2>${u}</h2>
+                <p>${data.bio || "No bio set."}</p>
             </div>`;
 
-        const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+        const list = document.getElementById('pFeed');
         posts.filter(p => p.username === u).reverse().forEach(p => {
-            const div = document.createElement('div');
-            div.className = 'post';
-            div.innerHTML = `<p>${p.content}</p>${p.image ? `<img src="${p.image}" style="width:100%; border-radius:10px;">`:''}`;
-            document.getElementById('userFeed').appendChild(div);
+            list.innerHTML += `
+                <div class="post">
+                    <p>${p.content}</p>
+                </div>`;
         });
     </script>
 </body>
