@@ -2,52 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Profile | Yeeps-Share</title>
+    <title>Profile | Yeeps-Share</title>
     <style>
         body { font-family: sans-serif; background: #87CEEB; display: flex; flex-direction: column; align-items: center; padding: 50px; }
-        .profile-card { background: white; padding: 30px; border-radius: 20px; width: 400px; text-align: center; margin-bottom: 20px; }
-        .pfp-large { width: 100px; height: 100px; border-radius: 50%; border: 4px solid #FF8C00; }
-        .post-mini { background: white; padding: 15px; border-radius: 10px; width: 400px; margin-bottom: 10px; }
+        .profile-card { background: white; padding: 30px; border-radius: 20px; width: 400px; text-align: center; border: 5px solid #FF8C00; margin-bottom: 20px; }
+        .pfp-l { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #FF8C00; object-fit: cover; }
+        .post-mini { background: white; padding: 15px; border-radius: 10px; width: 400px; margin-bottom: 10px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
-    <a href="../index.html" style="color:white; text-decoration:none; font-weight:bold; margin-bottom:20px;">⬅ Back to Feed</a>
-    
-    <div id="profileInfo"></div>
-    <h3>Posts by this Yeep</h3>
-    <div id="userPosts"></div>
+    <a href="../index.html" style="color:white; font-weight:bold; text-decoration:none; margin-bottom:20px;">⬅ Back to Feed</a>
+    <div id="profileHead"></div>
+    <h3>Posts</h3>
+    <div id="profilePosts"></div>
 
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const targetUser = params.get('u');
+        const u = new URLSearchParams(window.location.search).get('u');
+        const db = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+        const userData = db[u] || {};
+        
+        document.getElementById('profileHead').innerHTML = `
+            <div class="profile-card">
+                <img src="${userData.pfp || 'https://ui-avatars.com/api/?name='+u}" class="pfp-l">
+                <h2>${u}</h2>
+                <p>${userData.bio || "No bio set."}</p>
+            </div>`;
 
-        function loadProfile() {
-            const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
-            const userData = usersDB[targetUser] || {};
-            const pfp = userData.pfp || "https://ui-avatars.com/api/?name=" + targetUser;
-
-            document.getElementById('profileInfo').innerHTML = `
-                <div class="profile-card">
-                    <img src="${pfp}" class="pfp-large">
-                    <h2>${targetUser}</h2>
-                    <p>${userData.bio || "This user hasn't set a bio yet."}</p>
-                </div>
-            `;
-
-            const allPosts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            const userPosts = allPosts.filter(p => p.username === targetUser);
-            const list = document.getElementById('userPosts');
-
-            userPosts.reverse().forEach(p => {
-                list.innerHTML += `
-                    <div class="post-mini">
-                        <p>${p.content}</p>
-                        ${p.image ? `<img src="${p.image}" style="width:100%; border-radius:10px;">` : ''}
-                    </div>
-                `;
-            });
-        }
-        loadProfile();
+        const posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
+        posts.filter(p => p.username === u).reverse().forEach(p => {
+            document.getElementById('profilePosts').innerHTML += `
+                <div class="post-mini">
+                    <p>${p.content}</p>
+                    ${p.image ? `<img src="${p.image}" style="width:100%; border-radius:8px;">` : ''}
+                </div>`;
+        });
     </script>
 </body>
 </html>
