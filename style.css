@@ -1,22 +1,27 @@
-:/* --- Global Variables & Background --- */
 :root {
     --yeeps-orange: #FF8C00;
-    /* Role Hex Colors */
-    --role-owner: #36454F;
-    --role-creator: #CED11D;
-    --role-rat: #0AD100;
-    --role-star: #F2FF00;
-    --role-starprog: #951DD1;
-    --role-gamemod: #008FFC;
-    --role-discordmod: #3453BA;
-    --role-webmod: #4ADDF7;
-    --role-dev: #F3FF70;
+    --dark-bg: #121212;
+    --card-bg: #1e1e1e;
+    --text-main: #e0e0e0;
+    --text-dim: #b0b0b0;
+
+    /* Role Colors */
+    --color-owner: #36454F;
+    --color-creator: #CED11D;
+    --color-rat: #0AD100;
+    --color-star: #F2FF00;
+    --color-starprog: #951DD1;
+    --color-gamemod: #008FFC;
+    --color-discordmod: #3453BA;
+    --color-webmod: #4ADDF7;
+    --color-dev: #F3FF70;
 }
 
 body {
     font-family: 'Comic Sans MS', sans-serif;
-    background: url('Images/Background.png') no-repeat center center fixed;
+    background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('Images/Background.png') no-repeat center center fixed;
     background-size: cover;
+    color: var(--text-main);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -24,40 +29,39 @@ body {
     margin: 0;
 }
 
-/* --- Navigation & Logo --- */
+/* --- NAVIGATION --- */
 .top-nav {
     position: fixed;
     top: 0;
     width: 100%;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.95);
     padding: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 25px;
+    gap: 30px;
     z-index: 1000;
+    border-bottom: 2px solid var(--yeeps-orange);
 }
 
-.nav-logo {
-    height: 45px;
-    cursor: pointer;
+.nav-logo { height: 45px; cursor: pointer; }
+.top-nav a { color: white; text-decoration: none; font-weight: bold; }
+
+/* --- ICON SIZING FIXES --- */
+.inline-icon {
+    width: 18px !important;  /* Force small size in feed */
+    height: 18px !important;
+    vertical-align: middle;
+    margin-left: 5px;
+    object-fit: contain;
 }
 
-.top-nav a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 1rem;
-}
-
-/* --- Profile Picture (PFP) Fixes --- */
 .pfp-img {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    object-fit: cover; /* Prevents stretching */
+    object-fit: cover;
     border: 2px solid var(--yeeps-orange);
-    cursor: pointer;
 }
 
 .pfp-large {
@@ -66,89 +70,56 @@ body {
     border-radius: 50%;
     object-fit: cover;
     border: 4px solid var(--yeeps-orange);
-    margin-bottom: 15px;
 }
 
-/* --- Posts & Layout --- */
-.admin-panel, .input-box {
-    background: rgba(255, 255, 255, 0.95);
+/* --- ROLE TEXT COLORS --- */
+.role-owner { color: var(--color-owner) !important; }
+.role-creator { color: var(--color-creator) !important; }
+.role-rat { color: var(--color-rat) !important; }
+.role-star { color: var(--color-star) !important; }
+.role-starprog { color: var(--color-starprog) !important; }
+.role-gamemod { color: var(--color-gamemod) !important; }
+.role-discordmod { color: var(--color-discordmod) !important; }
+.role-webmod { color: var(--color-webmod) !important; }
+.role-dev { color: var(--color-dev) !important; }
+
+/* --- CARDS & POSTS --- */
+.admin-panel, .input-box, .post {
+    background: var(--card-bg);
     padding: 20px;
     border-radius: 15px;
     width: 480px;
     margin-bottom: 20px;
-    border: 4px solid var(--yeeps-orange);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    border: 1px solid #333;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
-.post {
-    background: white;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 15px;
-    width: 480px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    position: relative;
-}
+.post.pinned { border: 2px solid gold; background: #252520; }
 
-.post.pinned {
-    border: 3px solid #FFD700;
-    background: #FFFBEB;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-}
-
-.post-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-/* --- Roles & Badges --- */
-.role-container {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 4px;
-}
-
-.role-icon {
-    width: 18px;
-    height: 18px;
-    object-fit: contain;
+input, textarea, select {
+    background: #2a2a2a;
+    color: white;
+    border: 1px solid #444;
+    padding: 10px;
+    width: 95%;
+    border-radius: 8px;
+    margin-bottom: 10px;
 }
 
 .badge {
     font-size: 0.65rem;
     padding: 2px 8px;
-    border-radius: 5px;
+    border-radius: 4px;
     font-weight: bold;
-    color: white;
-    text-transform: uppercase;
+    color: #000; /* Text inside badges is black for visibility */
 }
 
-/* Black text for roles with light colors */
-.role-star, .role-dev, .role-creator, .role-webmod { 
-    color: #000 !important; 
-}
-
-/* --- Form Elements --- */
-input, textarea, select {
-    width: 95%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    border: 2px solid #ddd;
-    font-family: inherit;
-}
-
-button {
-    padding: 10px 15px;
-    border-radius: 8px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.1s;
-}
-
-button:active {
-    transform: scale(0.98);
+.role-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #2a2a2a;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin: 5px;
 }
