@@ -2,20 +2,41 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Banned</title>
+    <title>Restricted | Yeeps-Share</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body style="justify-content:center;">
-    <div class="admin-panel" style="text-align:center;">
-        <h1 style="color:red;">Account Restricted</h1>
-        <p id="reasonDisplay"></p>
-        <button onclick="localStorage.removeItem('current_yeep_user'); location.href='login.html'">Logout</button>
+<body style="height:100vh; justify-content:center;">
+    <div class="admin-panel" style="text-align:center; border:2px solid red; width:500px;">
+        <h1 style="color:red; font-size:3rem; margin:0;">🚫</h1>
+        <h2 style="margin-top:0;">Access Restricted</h2>
+        
+        <div style="background:#2a2a2a; text-align:left; padding:20px; border-radius:10px; margin:20px 0;">
+            <p style="color:var(--yeeps-orange); font-weight:bold;">MODERATOR MESSAGE:</p>
+            <p id="reasonDisplay" style="font-size:1.1rem; color:white;">Loading...</p>
+            <hr style="border-color:#444;">
+            <p id="expiryDisplay" style="color:gray;">...</p>
+        </div>
+
+        <button onclick="localStorage.removeItem('current_yeep_user'); location.href='login.html'" style="background:#444; color:white; width:100%;">Logout</button>
     </div>
+
     <script>
         const user = localStorage.getItem('current_yeep_user');
         const db = JSON.parse(localStorage.getItem('yeeps_status_db')) || {};
+        
         if(db[user]) {
-            document.getElementById('reasonDisplay').innerText = "Reason: " + db[user].reason;
+            const s = db[user];
+            document.getElementById('reasonDisplay').innerText = s.reason || "No reason provided.";
+            
+            if(s.expires === "PERMANENT") {
+                document.getElementById('expiryDisplay').innerText = "Duration: Permanent Ban";
+            } else if (s.expires) {
+                const mins = Math.ceil((s.expires - Date.now()) / 60000);
+                document.getElementById('expiryDisplay').innerText = `Expires in: ${mins} Minutes`;
+            }
+        } else {
+            // Not actually banned? Send back.
+            location.href = 'index.html';
         }
     </script>
 </body>
