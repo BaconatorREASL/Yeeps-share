@@ -7,20 +7,24 @@
 </head>
 <body>
     <nav class="top-nav"><a href="../index.html">🏠 Home</a></nav>
-    
-    <div id="profileHeader" style="margin-top:20px; text-align:center;"></div>
-    <h3>Recent Activity</h3>
+    <div id="profileHeader" style="margin-top:20px;"></div>
+    <h3>Recent Posts</h3>
     <div id="userFeed"></div>
 
     <script>
         const u = new URLSearchParams(window.location.search).get('u');
-        const db = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
-        const userData = db[u] || {};
-        
+        const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
+        const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
+        const userData = usersDB[u] || {};
+
+        // Reuse role logic
+        let roleKey = (u === "DatWeirdFNFfan") ? "owner" : (rolesDB[u] || "");
+        const check = ["owner", "dev", "star", "gamemod"].includes(roleKey) ? '<span class="checkmark">✔</span>' : '';
+
         document.getElementById('profileHeader').innerHTML = `
-            <div class="input-box">
+            <div class="input-box" style="text-align:center;">
                 <img src="${userData.pfp || 'https://ui-avatars.com/api/?name='+u}" class="pfp-img" style="width:100px; height:100px;">
-                <h2>${u}</h2>
+                <h2>${u}${check}</h2>
                 <p>${userData.bio || "No bio set."}</p>
             </div>`;
 
