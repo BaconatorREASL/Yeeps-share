@@ -49,6 +49,31 @@
             document.getElementById('commText').value = '';
             loadComments();
         }
+const isOwner = (localStorage.getItem('current_yeep_user') === "DatWeirdFNFfan");
+
+function loadComments() {
+    const allComments = JSON.parse(localStorage.getItem('yeeps_comments')) || {};
+    const comments = allComments[postId] || [];
+    const list = document.getElementById('commentList');
+    list.innerHTML = "";
+    
+    comments.forEach((c, index) => {
+        const canDelete = (isOwner || c.user === currentUser);
+        list.innerHTML += `
+            <div class="comment">
+                <strong>${c.user}:</strong> ${c.text}
+                ${canDelete ? `<button onclick="deleteComment(${index})" style="color:red; border:none; background:none; cursor:pointer; float:right;">Delete</button>` : ''}
+            </div>`;
+    });
+}
+
+function deleteComment(index) {
+    let allComments = JSON.parse(localStorage.getItem('yeeps_comments')) || {};
+    allComments[postId].splice(index, 1);
+    localStorage.setItem('yeeps_comments', JSON.stringify(allComments));
+    loadComments();
+}
+        
 
         loadComments();
     </script>
