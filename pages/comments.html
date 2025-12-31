@@ -7,31 +7,23 @@
 </head>
 <body>
     <nav class="top-nav"><a href="../index.html">🏠 Home</a></nav>
-
-    <div id="op" style="margin-top:20px;"></div>
-    
-    <div class="input-box">
+    <div class="input-box" style="margin-top:20px;">
         <h3>Comments</h3>
         <div id="list"></div>
         <hr>
-        <textarea id="msg" placeholder="Write a comment..."></textarea>
-        <button onclick="send()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px;">Post Comment</button>
+        <textarea id="msg" placeholder="Type a comment..."></textarea>
+        <button onclick="send()" style="width:100%; padding:10px; background:var(--yeeps-orange); color:white; border:none; border-radius:10px;">Reply</button>
     </div>
-
     <script>
         const pid = new URLSearchParams(window.location.search).get('postId');
         const user = localStorage.getItem('current_yeep_user');
-
         function load() {
             const all = JSON.parse(localStorage.getItem('yeeps_comments')) || {};
             const coms = all[pid] || [];
             const list = document.getElementById('list');
-            list.innerHTML = coms.length ? "" : "No comments yet.";
-            coms.forEach((c, i) => {
-                list.innerHTML += `<div style="margin-bottom:10px;"><b>${c.user}:</b> ${c.text}</div>`;
-            });
+            list.innerHTML = coms.length ? "" : "Be the first to comment!";
+            coms.forEach(c => { list.innerHTML += `<div style="padding:10px 0; border-bottom:1px solid #eee;"><b>${c.user}:</b> ${c.text}</div>`; });
         }
-
         function send() {
             const txt = document.getElementById('msg').value;
             if(!txt) return;
