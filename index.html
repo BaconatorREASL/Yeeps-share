@@ -2,70 +2,68 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Yeeps-Share | Dark</title>
+    <title>Yeeps-Share | Home</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <nav class="top-nav">
         <img src="Images/Logo/Logo.png" class="nav-logo" onclick="location.href='index.html'">
-        <a href="index.html">Home</a>
-        <a href="pages/profile-editor.html">Settings</a>
+        <a href="index.html">🏠 Home</a>
+        <a href="pages/profile-editor.html">⚙️ Settings</a>
         <a href="#" onclick="localStorage.removeItem('current_yeep_user'); location.reload();" style="color:red;">Logout</a>
     </nav>
 
-    <div id="staffPanel" style="display:none;" class="admin-panel">
-        <h3 style="color:var(--yeeps-orange); margin-top:0;">Staff Tools</h3>
-        <input type="text" id="targetUser" placeholder="Username">
-        <select id="roleSelect">
-            <option value="creator">Creator</option>
-            <option value="dev">Dev</option>
-            <option value="webmod">Web Mod</option>
-            <option value="gamemod">Game Mod</option>
-            <option value="rat">Lab Rat</option>
-        </select>
-        <button onclick="manageRole('add')" style="background:var(--yeeps-orange);">Add Role</button>
-        <button onclick="manageRole('remove')" style="background:#444; color:white;">Remove</button>
-    </div>
-
     <div class="input-box">
-        <textarea id="postContent" placeholder="Post something..."></textarea>
-        <button onclick="submitPost()" style="width:100%; background:var(--yeeps-orange); color:white; font-weight:bold;">POST</button>
+        <textarea id="postContent" placeholder="What's happening?"></textarea>
+        <input type="text" id="mediaUrl" placeholder="Image, Video, or YouTube Link (Optional)" style="margin-top:5px;">
+        <button onclick="submitPost()" style="width:100%; background:var(--yeeps-orange); color:white; font-weight:bold; margin-top:10px;">POST</button>
     </div>
 
-    <div id="featured-zone"></div>
     <div id="feed"></div>
 
     <script>
         const ADMIN_NAME = "DatWeirdFNFfan";
         const currentUser = localStorage.getItem('current_yeep_user');
-        if(!currentUser) window.location.href = "login.html";
+        if (!currentUser) window.location.href = "login.html";
 
         const rolesDB = JSON.parse(localStorage.getItem('yeeps_roles_db')) || {};
         const usersDB = JSON.parse(localStorage.getItem('yeeps_users_db')) || {};
 
-        const myRoles = (currentUser === ADMIN_NAME) ? ["owner"] : (rolesDB[currentUser] || []);
-        if(myRoles.includes("owner") || myRoles.includes("dev") || myRoles.includes("webmod")) {
-            document.getElementById('staffPanel').style.display = 'block';
-        }
-
-        function manageRole(action) {
-            const target = document.getElementById('targetUser').value.trim();
-            const role = document.getElementById('roleSelect').value;
-            if(!target) return;
-            if(!Array.isArray(rolesDB[target])) rolesDB[target] = [];
-            if(action === 'add') rolesDB[target].push(role);
-            else rolesDB[target] = rolesDB[target].filter(r => r !== role);
-            localStorage.setItem('yeeps_roles_db', JSON.stringify(rolesDB));
-            location.reload();
-        }
-
         function submitPost() {
             const content = document.getElementById('postContent').value.trim();
-            if(!content) return;
+            const media = document.getElementById('mediaUrl').value.trim();
+            if(!content && !media) return;
+
             let posts = JSON.parse(localStorage.getItem('yeepsPosts')) || [];
-            posts.push({ id: Date.now(), username: currentUser, content: content });
+            posts.push({ 
+                id: Date.now(), 
+                username: currentUser, 
+                content: content, 
+                media: media 
+            });
             localStorage.setItem('yeepsPosts', JSON.stringify(posts));
             location.reload();
+        }
+
+        // --- MEDIA PARSER ---
+        function renderMedia(url) {
+            if(!url) return "";
+            
+            // Check for YouTube
+            if(url.includes("youtube.com") || url.includes("youtu.be")) {
+                let vidId = "";
+                if(url.includes("v=")) vidId = url.split("v=")[1].split("&")[0];
+                else vidId = url.split("/").pop();
+                return `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen style="border-radius:10px; margin-top:10px;"></iframe>`;
+            }
+
+            // Check for Raw Video (mp4, webm)
+            if(url.match(/\.(mp4|webm|ogg)$/i)) {
+                return `<video controls style="width:100%; border-radius:10px; margin-top:10px;"><source src="${url}"></video>`;
+            }
+
+            // Default to Image
+            return `<img src="${url}" style="width:100%; border-radius:10px; margin-top:10px;" onerror="this.style.display='none'">`;
         }
 
         function loadFeed() {
@@ -76,8 +74,8 @@
                 let uRoles = (p.username === ADMIN_NAME) ? ["owner"] : (rolesDB[p.username] || []);
                 if(!Array.isArray(uRoles)) uRoles = [uRoles];
 
-                let mainColorClass = uRoles.length > 0 ? `role-${uRoles[0]}` : "";
-                let icons = uRoles.map(r => `<img src="Images/roles/${r}.png" class="inline-icon" onerror="this.style.display='none'">`).join('');
+                let mainColor = uRoles.length > 0 ? `role-${uRoles[0]}` : "";
+                let icons = uRoles.map(r => `<img src="Images/roles/${r}.png" class="inline-icon">`).join('');
                 let pfp = usersDB[p.username]?.pfp || "https://ui-avatars.com/api/?name=" + p.username;
 
                 const div = document.createElement('div');
@@ -87,7 +85,7 @@
                         <img src="${pfp}" class="pfp-img" onclick="location.href='pages/user-profile.html?u=${p.username}'">
                         <div>
                             <div style="display:flex; align-items:center;">
-                                <strong class="${mainColorClass}" style="cursor:pointer;" onclick="location.href='pages/user-profile.html?u=${p.username}'">${p.username}</strong>
+                                <strong class="${mainColor}" style="cursor:pointer;" onclick="location.href='pages/user-profile.html?u=${p.username}'">${p.username}</strong>
                                 ${icons}
                             </div>
                             <div style="display:flex; gap:5px; margin-top:2px;">
@@ -95,8 +93,9 @@
                             </div>
                         </div>
                     </div>
-                    <p style="margin-top:15px; line-height:1.5;">${p.content}</p>
-                    <div style="margin-top:10px;"><a href="pages/comments.html?postId=${p.id}" style="color:var(--yeeps-orange); font-size:0.8rem; text-decoration:none;">💬 View Comments</a></div>
+                    <p style="margin-top:15px; white-space: pre-wrap;">${p.content}</p>
+                    ${renderMedia(p.media)}
+                    <div style="margin-top:15px;"><a href="pages/comments.html?postId=${p.id}" style="color:var(--yeeps-orange); font-size:0.8rem; text-decoration:none;">💬 View Comments</a></div>
                 `;
                 document.getElementById('feed').appendChild(div);
             });
